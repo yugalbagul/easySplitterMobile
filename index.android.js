@@ -1,8 +1,4 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+
 
 import React, { Component } from 'react';
 import {
@@ -11,13 +7,14 @@ import {
   Text,
   View
 } from 'react-native';
+import { Welcome } from './app/Welcome';
 
 export default class easySplitterMobile extends Component {
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
+          <Welcome />
         </Text>
         <Text style={styles.instructions}>
           To get started, edit index.android.js

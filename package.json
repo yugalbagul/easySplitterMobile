@@ -14,8 +14,11 @@
     "preset": "react-native"
   },
   "devDependencies": {
+    "babel-eslint": "^7.1.1",
     "babel-jest": "17.0.2",
     "babel-preset-react-native": "1.9.0",
+    "eslint": "^3.11.0",
+    "eslint-plugin-react": "^6.7.1",
     "jest": "17.0.3",
     "react-test-renderer": "15.4.1"
   }
