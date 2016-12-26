@@ -38,7 +38,6 @@ const initialState = new List([
   }])
 
 const saveDishInfo = (state, action) => {
-  console.log(action);
   const { billRecordIndex, dishInfo } = action;
   const billRecord = state.get(billRecordIndex.toString());
   const newDishesArray = billRecord.dishes;
@@ -50,7 +49,6 @@ const saveDishInfo = (state, action) => {
   }
   billRecord.dishes = newDishesArray;
   const newState = state.set(billRecordIndex.toString(), billRecord)
-  console.log(newState.toJS());
   return newState;
 }
 

@@ -1,5 +1,4 @@
 const calculatorFunction = (type, ...args) => {
-  console.log("In the util function");
   switch (type) {
   case 'DISH_PRICE_CHANGE':{
     const currentGrossPrice = args[0] * args[1]; // totalprice

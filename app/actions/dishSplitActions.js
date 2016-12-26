@@ -1,12 +1,13 @@
 import { SAVE_DISH_SPLIT, CANCEL_DISH_SPLIT } from '../actionTypes'
 
-export const saveDishSplitAction = (billRecordIndex, billID, dishInfo, dishSplitInfo ) => {
+export const saveDishSplitAction = (billRecordIndex, billID, dishInfo, dishSplitInfo, newItem ) => {
     return {
       type: SAVE_DISH_SPLIT,
       dishInfo,
       dishSplitInfo,
       billRecordIndex,
-      billID
+      billID,
+      newItem
     }
 }
 

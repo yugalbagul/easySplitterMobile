@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ListView, StyleSheet, Text, TouchableHighlight } from 'react-native';
+import { View, ListView, StyleSheet, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { ROUTES } from '../constants'
@@ -15,6 +15,7 @@ class BillSplitScene extends React.Component {
       dataSource: ds,
     }
     this.renderRow = this.renderRow.bind(this);
+    this.addNewItem = this.addNewItem.bind(this);
   }
 
   componentWillMount(){
@@ -74,13 +75,35 @@ class BillSplitScene extends React.Component {
     });
   }
 
+  addNewItem(){
+    const { dishSplitActions, billRecordIndex } = this.props;
+    this.props.navigator.push({
+      title:'Dish Split Page',
+      routeName: ROUTES.dishSplitPage,
+      newItem:true,
+      billData: this.props.billRecord,
+      dishSplitActions,
+      billRecordIndex,
+      navigator: this.props.navigator,
+    })
+  }
+
   render() {
     return(
+
+      <View style={styles.container}>
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity onPress={this.addNewItem}>
+              <Text>New Item</Text>
+          </TouchableOpacity>
+        </View>
         <ListView
           dataSource={this.state.dataSource}
           renderRow={this.renderRow}
           style={styles.list}
         />
+    </View>
+
     )
   }
 }
@@ -114,6 +137,13 @@ const matchDispatchToProps = (dispatch) => {
 export default connect(matchStateToProps, matchDispatchToProps)(BillSplitScene);
 
 const styles  = StyleSheet.create({
+  container: {
+    flex:1,
+  },
+  actionsContainer:{
+    flexDirection:'row',
+    justifyContent:'flex-end',
+  },
   list : {
     flex: 1
   },

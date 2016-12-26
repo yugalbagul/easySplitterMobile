@@ -18,8 +18,18 @@ class DishSplitScene extends React.Component {
   }
 
   componentWillMount(){
-    const { dishData }  = this.props
-    if(dishData && !isEmpty(dishData.splitInfo)){
+    const { dishData, newItem }  = this.props
+    if(newItem) {
+      this.setState({
+        currentBaseSplitAmount: 0,
+        currentTotalSplits: 0,
+        currentDishSplit: [],
+        currentPricePerItem: '',
+        currentDishCount: '',
+        currentDishName: '',
+        editName: true,
+      });
+    } else if(dishData && !isEmpty(dishData.splitInfo)){
       const { splitInfo } = dishData;
       const {
         totalSplits,
@@ -38,7 +48,6 @@ class DishSplitScene extends React.Component {
         currentPricePerItem: dishData.pricePerItem,
         currentDishCount: dishData.count,
         currentDishName: dishData.dishName,
-        alreadySplit: true,
       })
     }
     else if(dishData && isEmpty(dishData.splitInfo)){
@@ -49,7 +58,6 @@ class DishSplitScene extends React.Component {
         currentPricePerItem: dishData.pricePerItem,
         currentDishCount: dishData.count,
         currentDishName: dishData.dishName,
-        alreadySplit: false,
       })
     }
   }
@@ -64,21 +72,28 @@ class DishSplitScene extends React.Component {
       currentTotalSplits,
       currentDishSplit
     } = this.state;
-    const { dishID, billData } = this.props;
-    const newDishBasicInfo = {
-      dishID,
-      count: currentDishCount,
-      dishName: currentDishName,
-      pricePerItem:  currentPricePerItem,
-    };
-    const newDishSplitInfo = {
-      dishID,
-      baseSplitAmount: currentBaseSplitAmount,
-      totalSplits: currentTotalSplits,
-      dishSplit: currentDishSplit
+    if(currentDishCount && currentDishName && currentPricePerItem){
+      const { newItem,dishID, billData } = this.props;
+      let tempDishId = dishID;
+      if(!tempDishId){
+        tempDishId = billData.dishes.length;
+      }
+      const newDishBasicInfo = {
+        dishID: tempDishId,
+        count: currentDishCount,
+        dishName: currentDishName,
+        pricePerItem:  currentPricePerItem,
+      };
+      const newDishSplitInfo = {
+        dishID: tempDishId,
+        baseSplitAmount: currentBaseSplitAmount,
+        totalSplits: currentTotalSplits,
+        dishSplit: currentDishSplit
+      }
+      dishSplitActions.saveDishSplitAction(billRecordIndex, billData.billID, newDishBasicInfo, newDishSplitInfo, newItem);
+      this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', billRecordIndex: billRecordIndex, routeName: ROUTES.billSplitPage});
     }
-    dishSplitActions.saveDishSplitAction(billRecordIndex, billData.billID, newDishBasicInfo, newDishSplitInfo);
-    this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', billRecordIndex: billRecordIndex, routeName: ROUTES.billSplitPage});
+
 
   }
 
@@ -145,20 +160,49 @@ class DishSplitScene extends React.Component {
   }
 
   render() {
-    const { dishData } = this.props;
     const { people } = this.props.billData;
-    const { currentPricePerItem ,currentDishCount } = this.state;
-    const totalDishAmount = !currentDishCount || !currentPricePerItem ? '-' : (currentPricePerItem * currentDishCount);
+    const { currentPricePerItem ,currentDishCount, editName, currentDishName } = this.state;
+    const totalDishAmount = !currentDishCount || !currentPricePerItem ? '' : (currentPricePerItem * currentDishCount);
+    const disableSplitSection = totalDishAmount ? false : true;
     return(
         <View style={styles.container}>
+
           <View style={styles.dishInfo}>
+
             <View style={styles.dishInfoDishName}>
-              <Icon name={'rocket'} size={15} color="#900" style={styles.dishNameIcon} />
-              <Text style={styles.dishName}>{dishData.dishName}</Text>
-              <TouchableOpacity onPress={this.saveDishSplit}>
-                <Text>Save</Text>
-              </TouchableOpacity>
+              <View style={{
+                flexDirection: 'row'
+              }}>
+                <Icon name={'rocket'} size={15} color="#900" style={styles.dishNameIcon} />
+                {editName ?
+                  <View style={{flexDirection: 'row'}}>
+                    <TextInput
+                        value={currentDishName}
+                        onChange= {(event) => {this.setState({currentDishName: event.nativeEvent.text})}}
+                        style={{width:200, height: 40, marginBottom: 5}}
+                    />
+                  <TouchableOpacity onPress={()=>{this.setState({editName: !this.state.editName})}}>
+                    <Icon name={'thumbs-up'} size={15} color="grey"  style={styles.dishNameIcon} />
+                  </TouchableOpacity>
+                  </View> :
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.dishName}>{currentDishName}</Text>
+                      <TouchableOpacity onPress={()=>{this.setState({editName: !this.state.editName})}}>
+                        <Icon name={'pencil'} size={15} color="grey"  style={styles.dishNameIcon} />
+                      </TouchableOpacity>
+                  </View>
+                }
+              </View>
+
+              <View style={{
+                alignSelf:'flex-end'
+              }}>
+                <TouchableOpacity onPress={this.saveDishSplit}>
+                  <Text>Save</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+
             <View style={styles.dishInfoDishAmount}>
               <Text>Total Amount: </Text>
               <View style={styles.dishAmountInputContainer}>
@@ -181,9 +225,11 @@ class DishSplitScene extends React.Component {
                 />
               </View>
               <Text> = </Text>
-              <Text>{totalDishAmount}</Text>
+              <Text>{totalDishAmount ? totalDishAmount : '-'}</Text>
             </View>
           </View>
+
+
           <View style={styles.dishSplit}>
             <Text> Split Between : </Text>
           <ScrollView contentContainerStyle={styles.dishSplitScroll}>
@@ -195,13 +241,15 @@ class DishSplitScene extends React.Component {
                   <CheckBox
                     checked={personSplitInfo.selected}
                     label={personInfo.name}
-                    onChange={(checked) => {this.onPersonSelectToggle(checked, index)}}
+                    onChange={(checked) => {if(!disableSplitSection){
+                      this.onPersonSelectToggle(checked, index)}}}
                   />
                    <TextInput
                       keyboardType={'numeric'}
                       value={personSplitInfo.splitPortion.toString()}
                       onChange={(event) => {this.onUserPortionChange(event, index )}}
                       style={{width:50, height: 40, marginBottom: 5}}
+                      editable={!disableSplitSection}
                     />
 
                    <Text>
@@ -214,7 +262,8 @@ class DishSplitScene extends React.Component {
                     <CheckBox
                       checked={ personSplitInfo && personSplitInfo.selected ? personSplitInfo.selected : false}
                       label={personInfo.name}
-                      onChange={(checked) => {this.onPersonSelectToggle(checked, index)}}
+                      onChange={(checked) => {if(!disableSplitSection){
+                        this.onPersonSelectToggle(checked, index)}}}
                     />
                      <TextInput
                         keyboardType={'numeric'}
@@ -249,6 +298,8 @@ DishSplitScene.propTypes = {
   dishSplitActions: React.PropTypes.object,
   dishID: React.PropTypes.number,
   billRecordIndex: React.PropTypes.string,
+  newItem: React.PropTypes.bool,
+  navigator: React.PropTypes.object,
 }
 
 const styles  = StyleSheet.create({
@@ -265,6 +316,10 @@ const styles  = StyleSheet.create({
   },
   dishInfoDishName:{
     flexDirection: 'row',
+    justifyContent:'space-between',
+    paddingBottom: 5,
+    paddingHorizontal: 10,
+    backgroundColor:'whitesmoke'
   },
   dishInfoDishAmount : {
     flexDirection: 'row',
