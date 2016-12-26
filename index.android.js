@@ -14,9 +14,9 @@ export default class easySplitterMobile extends Component {
   render() {
     return (
       <Provider store = {store}>
-        <View style={styles.container}>
+       <View style={styles.container}>
           <ESNavigator />
-        </View>
+        </View> 
       </Provider>
     );
   }

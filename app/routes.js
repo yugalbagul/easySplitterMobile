@@ -6,10 +6,6 @@ import DishSplitScene from './containers/DishSplitScene';
 import DashboardScene from './containers/DashboardScene';
 import { ROUTES } from './constants';
 
-const routes = [
-  {title: 'Login', index: 0}
-]
-
 export default class ESNavigator extends React.Component {
   render() {
     return (
@@ -17,18 +13,17 @@ export default class ESNavigator extends React.Component {
         initialRoute= {{ title: 'Dashboard', index: 0, routeName: ROUTES.dashBoard}}
         renderScene={(route, navigator) => {
           switch(route.routeName){
-            case ROUTES.dashBoard :
-              return <DashboardScene navigator={navigator}/>
-            case ROUTES.billSplitPage:
-              return <BillSplitScene navigator={navigator} {...route} />
-              case ROUTES.dishSplitPage:
-                return <DishSplitScene navigator={navigator} {...route} />
-
-            default:
-              return <LoginContainer />
+          case ROUTES.dashBoard :
+            return <DashboardScene navigator={navigator}/>
+          case ROUTES.billSplitPage:
+            return <BillSplitScene navigator={navigator} {...route} />
+          case ROUTES.dishSplitPage:
+            return <DishSplitScene navigator={navigator} {...route} />
+          default:
+            return <LoginContainer />
           }
 
-       }
+        }
        }
       />
     )

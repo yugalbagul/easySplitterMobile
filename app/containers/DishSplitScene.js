@@ -1,101 +1,299 @@
 import React from 'react';
-import { View, StyleSheet, Text, Slider  } from 'react-native';
+import { View, StyleSheet, Text, TextInput, ScrollView, TouchableOpacity  } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { isEmpty } from 'lodash';
+import CheckBox from 'react-native-checkbox';
 import { connect } from 'react-redux';
 import { ROUTES } from '../constants';
+import dishSplitCalculator from '../utils/dishSplitCalculator';
 
 class DishSplitScene extends React.Component {
   constructor(){
-      super()
-      this.state = {
-        portionValue1: 0,
-        maximumValue2: 5
-      }
-      this.onValueChange = this.onValueChange.bind(this);
+    super();
+    this.onUserPortionChange = this.onUserPortionChange.bind(this);
+    this.updateOnDishPriceChange = this.updateOnDishPriceChange.bind(this);
+    this.setNewDishPrice = this.setNewDishPrice.bind(this);
+    this.saveDishSplit = this.saveDishSplit.bind(this);
+    this.onPersonSelectToggle = this.onPersonSelectToggle.bind(this);
   }
 
-  onValueChange(value){
-    this.setState({
-      portionValue1: value,
-      maximumValue2: 5 - value,
-    })
+  componentWillMount(){
+    const { dishData }  = this.props
+    if(dishData && !isEmpty(dishData.splitInfo)){
+      const { splitInfo } = dishData;
+      const {
+        totalSplits,
+        baseSplitAmount,
+        dishSplit,
+      } = splitInfo;
+      const tempCurrentDishSplit = [];
+      dishSplit.map((item) => {
+        const newItem = Object.assign({}, item, { selected: true});
+        tempCurrentDishSplit.push(newItem);
+      })
+      this.setState({
+        currentBaseSplitAmount: baseSplitAmount,
+        currentTotalSplits: totalSplits,
+        currentDishSplit: tempCurrentDishSplit,
+        currentPricePerItem: dishData.pricePerItem,
+        currentDishCount: dishData.count,
+        currentDishName: dishData.dishName,
+        alreadySplit: true,
+      })
+    }
+    else if(dishData && isEmpty(dishData.splitInfo)){
+      this.setState({
+        currentBaseSplitAmount: 0,
+        currentTotalSplits: 0,
+        currentDishSplit: [],
+        currentPricePerItem: dishData.pricePerItem,
+        currentDishCount: dishData.count,
+        currentDishName: dishData.dishName,
+        alreadySplit: false,
+      })
+    }
+  }
 
+  saveDishSplit(){
+    const { dishSplitActions, billRecordIndex } = this.props;
+    const {
+      currentDishCount,
+      currentDishName,
+      currentPricePerItem,
+      currentBaseSplitAmount,
+      currentTotalSplits,
+      currentDishSplit
+    } = this.state;
+    const { dishID, billData } = this.props;
+    const newDishBasicInfo = {
+      dishID,
+      count: currentDishCount,
+      dishName: currentDishName,
+      pricePerItem:  currentPricePerItem,
+    };
+    const newDishSplitInfo = {
+      dishID,
+      baseSplitAmount: currentBaseSplitAmount,
+      totalSplits: currentTotalSplits,
+      dishSplit: currentDishSplit
+    }
+    dishSplitActions.saveDishSplitAction(billRecordIndex, billData.billID, newDishBasicInfo, newDishSplitInfo);
+    this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', billRecordIndex: billRecordIndex, routeName: ROUTES.billSplitPage});
+
+  }
+
+  onPersonSelectToggle(checked, index){
+    console.log(checked, index);
+    const { people } = this.props.billData;
+    if(!checked){
+      const newState = Object.assign({}, this.state,
+        dishSplitCalculator('USER_SELECTION_ADDED', index, people, this.state));
+      this.setState(newState);
+    } else {
+      const newState = Object.assign({}, this.state,
+        dishSplitCalculator('USER_SELECTION_REMOVED', index, people, this.state));
+      this.setState(newState);
+    }
+
+  }
+
+  setNewDishPrice(event, attribute){
+    const newText = event.nativeEvent.text;
+    const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(newText);
+    const { currentDishCount, currentPricePerItem } = this.state;
+    if((!newText && attribute === 'count')){
+      this.setState({
+        currentDishCount: newText
+      });
+    } else if(!newText && attribute === 'pricePerItem'){
+      this.setState({
+        currentPricePerItem: newText,
+      });
+    } else if(newText && isNumber && attribute === 'count'){
+      this.updateOnDishPriceChange(newText,currentPricePerItem, attribute);
+    } else if(newText && isNumber && attribute === 'pricePerItem'){
+      this.updateOnDishPriceChange(currentDishCount, newText, attribute);
+    }
+
+  }
+
+  updateOnDishPriceChange(dishCount, pricePerItem, attribute){
+    const { currentTotalSplits, currentDishSplit } = this.state;
+    // TODO: send current state rather than passing only required attributes,
+    // will make the function usage uniform
+    const newState = Object.assign({}, this.state, dishSplitCalculator('DISH_PRICE_CHANGE', dishCount, pricePerItem, currentTotalSplits, currentDishSplit, attribute))
+    this.setState(newState);
+  }
+
+  onUserPortionChange(event, index){
+    const newInputText = event.nativeEvent.text;
+    const tempCurrentDishSplit = this.state.currentDishSplit;
+    const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(event.nativeEvent.text);
+    const tempUserSplitRecord = tempCurrentDishSplit[index];
+    if(isNumber){
+      // code to recalculate the current base split and currentTotalSplits
+      const newState = Object.assign({}, this.state, dishSplitCalculator('USER_PORTION_CHANGED', newInputText, index, this.state));
+      this.setState(newState);
+    } else if (!newInputText){
+      tempUserSplitRecord.previousSplitPortion = tempUserSplitRecord.splitPortion;
+      tempUserSplitRecord.splitPortion = newInputText;
+      tempCurrentDishSplit[index] = tempUserSplitRecord;
+      this.setState({
+        currentDishSplit: tempCurrentDishSplit,
+      });
+    }
   }
 
   render() {
     const { dishData } = this.props;
     const { people } = this.props.billData;
-    const { splitInfo } = dishData;
+    const { currentPricePerItem ,currentDishCount } = this.state;
+    const totalDishAmount = !currentDishCount || !currentPricePerItem ? '-' : (currentPricePerItem * currentDishCount);
     return(
-      <View style={styles.container}>
-        <View style={styles.dishInfo}>
-          <Text>Name : {dishData.dishName}</Text>
-          <Text>Count : {dishData.count}</Text>
-          <Text>Price Per Item : {dishData.pricePerItem}</Text>
-          <Text>Total : {dishData.pricePerItem * dishData.count}</Text>
+        <View style={styles.container}>
+          <View style={styles.dishInfo}>
+            <View style={styles.dishInfoDishName}>
+              <Icon name={'rocket'} size={15} color="#900" style={styles.dishNameIcon} />
+              <Text style={styles.dishName}>{dishData.dishName}</Text>
+              <TouchableOpacity onPress={this.saveDishSplit}>
+                <Text>Save</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.dishInfoDishAmount}>
+              <Text>Total Amount: </Text>
+              <View style={styles.dishAmountInputContainer}>
+                <TextInput
+                  keyboardType={'numeric'}
+                  value={currentDishCount.toString()}
+                  onChange={(event) => {
+                    this.setNewDishPrice(event, 'count')
+                  }}
+                  style={{width:50, height: 40, marginBottom: 5}}
+                />
+              <Text>X</Text>
+                <TextInput
+                  keyboardType={'numeric'}
+                  value={currentPricePerItem.toString()}
+                  onChange={(event) => {
+                    this.setNewDishPrice(event, 'pricePerItem')
+                  }}
+                  style={{width:50, height: 40, marginBottom: 5}}
+                />
+              </View>
+              <Text> = </Text>
+              <Text>{totalDishAmount}</Text>
+            </View>
+          </View>
+          <View style={styles.dishSplit}>
+            <Text> Split Between : </Text>
+          <ScrollView contentContainerStyle={styles.dishSplitScroll}>
+            {
+              people.map((personInfo, index) => {
+                const personSplitInfo = this.state.currentDishSplit.find((item) => item.userID == personInfo.userID);
+                if(personSplitInfo){
+                  return (  <View style={styles.dishSplitPerson} key={personInfo.userID}>
+                  <CheckBox
+                    checked={personSplitInfo.selected}
+                    label={personInfo.name}
+                    onChange={(checked) => {this.onPersonSelectToggle(checked, index)}}
+                  />
+                   <TextInput
+                      keyboardType={'numeric'}
+                      value={personSplitInfo.splitPortion.toString()}
+                      onChange={(event) => {this.onUserPortionChange(event, index )}}
+                      style={{width:50, height: 40, marginBottom: 5}}
+                    />
+
+                   <Text>
+                    {personSplitInfo.dishAmount}
+                   </Text>
+                 </View>)
+                } else {
+                  return (
+                    <View style={styles.dishSplitPerson} key={personInfo.userID}>
+                    <CheckBox
+                      checked={ personSplitInfo && personSplitInfo.selected ? personSplitInfo.selected : false}
+                      label={personInfo.name}
+                      onChange={(checked) => {this.onPersonSelectToggle(checked, index)}}
+                    />
+                     <TextInput
+                        keyboardType={'numeric'}
+                        value={''}
+                        editable= {false}
+                        style={{width:50, height: 40, marginBottom: 5}}
+                      />
+
+                     <Text>
+                      -
+                     </Text>
+                   </View>
+                  )
+                }
+
+              })
+          }
+          </ScrollView>
         </View>
-        <View style={styles.dishSplit}>
-          <Text>Max Value: {this.state.maximumValue2}</Text>
-          <Slider
-           maximumValue={this.state.maximumValue2}
-           step={1}
-           value={0}
-           onValueChange={ this.onValueChange }
-          >
-          </Slider>
-          <Text>--------------------------</Text>
-          {splitInfo.dishSplit.map((personSplitInfo) => {
-            const personInfo = people.find((item) => item.userID == personSplitInfo.userID)
-          return (  <View style={styles.dishSplitPerson} key={personInfo.userID}>
-               <Text>
-                Name : {personInfo.name}
-               </Text>
-               <Text>
-                Portion : {this.state.portionValue1}
-               </Text>
-               <Slider
-                maximumValue={5}
-                step={1}
-                value={this.state.portionValue1}
-                onValueChange={ this.onValueChange }
-               >
-               </Slider>
-               <Text>
-                Dish Amount: {personSplitInfo.dishAmount}
-               </Text>
-               </View>)
-          })}
+
         </View>
-      </View>
 
     )
   }
 }
 
+export default connect(null,null)(DishSplitScene);
+
 DishSplitScene.propTypes = {
-  billRecords: React.PropTypes.array,
+  billData: React.PropTypes.object,
+  dishData: React.PropTypes.object,
+  dishSplitActions: React.PropTypes.object,
+  dishID: React.PropTypes.number,
+  billRecordIndex: React.PropTypes.string,
 }
 
 const styles  = StyleSheet.create({
   container : {
     flex: 1,
-    padding: 10
+    padding: 10,
   },
   dishInfo : {
     minHeight: 50,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'black',
+    flexDirection: 'column',
     paddingVertical: 10
+  },
+  dishInfoDishName:{
+    flexDirection: 'row',
+  },
+  dishInfoDishAmount : {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  dishAmountInputContainer: {
+    flexDirection : 'row',
   },
   dishSplit: {
     paddingVertical: 10
-  }
+  },
+  dishSplitScroll: {
+    borderTopWidth : StyleSheet.hairlineWidth,
+    marginTop: 10,
+  },
+  dishNameIcon :{
+    top: 5,
+    marginRight: 5,
+  },
+  dishName: {
+    fontFamily: 'Roboto',
+    fontSize: 20,
+  },
+  // split section styles
+  dishSplitPerson: {
+    flexDirection:'row',
+    justifyContent:'space-around',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+
 })
-
-const matchStateToProps = (state) => {
-  const billRecords = state.get('billRecordsReducer') && state.get('billRecordsReducer').toJS ? state.get('billRecordsReducer').toJS() : [];
-  return {
-
-  }
-}
-
-export default connect(matchStateToProps)(DishSplitScene);

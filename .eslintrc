@@ -8,13 +8,33 @@
         "jsx": true
     },
     "plugins": [
-        "react"
+        "react",
+        "node"
     ],
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:node/recommended"
     ],
     "rules": {
-        // overrides
+        "indent": ["error", 2],
+        "quotes": ["error", "single"],
+        "react/jsx-uses-react": "error",
+        "react/jsx-uses-vars": "error",
+        "node/no-missing-import": ["error", {
+            "allowModules": ["electron"]
+        }],
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+        "react/prefer-stateless-function": [1],
+        "react/no-set-state":[0],
+        "react/sort-comp": [1],
+        "node/no-unsupported-features": 0,
+
+    },
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      }
     }
+
 }
