@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ListView, StyleSheet, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { ROUTES } from '../constants'
 import * as dishSplitActions from '../actions/dishSplitActions';
 
@@ -13,6 +14,9 @@ class BillSplitScene extends React.Component {
     })
     this.state = {
       dataSource: ds,
+      editBillName: false,
+      editBillAmount: false,
+      editRestaurantName: false,
     }
     this.renderRow = this.renderRow.bind(this);
     this.addNewItem = this.addNewItem.bind(this);
@@ -89,12 +93,32 @@ class BillSplitScene extends React.Component {
   }
 
   render() {
+    const { billRecord, splitRecord } = this.props;
     return(
 
       <View style={styles.container}>
+        <View style={styles.billInfo}>
+          <View style={styles.billInfoName}>
+
+            <Text style={styles.billInfoBillName}>{billRecord.billName}</Text>
+          </View>
+          <View style={styles.billAmountInfo}>
+            <Text>Total Bill Amount :
+              <Text style={{color:'black'}}>
+                {billRecord.totalBillAmount}
+              </Text>
+            </Text>
+            <Text>Amount not split :
+              <Text style={{color:'red'}}>
+                {billRecord.totalBillAmount - splitRecord.totalAmountSplit}
+              </Text>
+            </Text>
+          </View>
+        </View>
+
         <View style={styles.actionsContainer}>
           <TouchableOpacity onPress={this.addNewItem}>
-              <Text>New Item</Text>
+              <Text style={styles.addNewItemText}>New Item</Text>
           </TouchableOpacity>
         </View>
         <ListView
@@ -140,12 +164,33 @@ const styles  = StyleSheet.create({
   container: {
     flex:1,
   },
+  // Bill info styles
+  billInfo:{
+    borderBottomWidth: 1,
+    padding:10
+  },
+  billInfoName: {
+  },
+  billInfoBillName:{
+    fontSize: 20,
+  },
+
+//action container styles
   actionsContainer:{
     flexDirection:'row',
     justifyContent:'flex-end',
+    borderBottomWidth:1,
+    padding: 5
+
   },
+  addNewItemText: {
+    color:'blue'
+  },
+
+  // list styles
   list : {
-    flex: 1
+    flex: 1,
+    padding: 5
   },
   item : {
     flex:1,

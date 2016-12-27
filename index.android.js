@@ -1,5 +1,3 @@
-
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -11,12 +9,15 @@ import store from './app/store/configureStore'
 import ESNavigator from './app/routes'
 
 export default class easySplitterMobile extends Component {
+  componentWillMount() {
+    console.log("Calling Action")
+  }
   render() {
     return (
       <Provider store = {store}>
        <View style={styles.container}>
           <ESNavigator />
-        </View> 
+        </View>
       </Provider>
     );
   }

@@ -40,7 +40,7 @@ const userSelectionRemoved = ([ index, people, state ]) => {
   // calculate new splits after removing this person
   let newTotalSplits = 0;
   tempCurrentDishSplit.map((userSplitInfo) => {
-    if(userSplitInfo.selected){
+    if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
       newTotalSplits = newTotalSplits + parseFloat(userSplitInfo.splitPortion);
     }
   });
@@ -48,8 +48,10 @@ const userSelectionRemoved = ([ index, people, state ]) => {
   const newBaseSplitAmount = (currentDishCount * currentPricePerItem) / newTotalSplits;
 
   tempCurrentDishSplit.map((userSplitInfo) => {
-    if(userSplitInfo.selected){
+    if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
       userSplitInfo.dishAmount = parseFloat(userSplitInfo.splitPortion) * newBaseSplitAmount;
+    } else {
+      userSplitInfo.dishAmount = 0
     }
   })
   return {
@@ -70,16 +72,17 @@ const userSelectionAdded = ([ index, people, state ]) => {
     // calculate new splits after removing this person
     let newTotalSplits = 0;
     tempCurrentDishSplit.map((userSplitInfo) => {
-      if(userSplitInfo.selected){
+      if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
         newTotalSplits = newTotalSplits + parseFloat(userSplitInfo.splitPortion);
       }
     });
-    console.log(newTotalSplits, currentDishCount, currentPricePerItem);
     const newBaseSplitAmount = (currentDishCount * currentPricePerItem) / newTotalSplits;
 
     tempCurrentDishSplit.map((userSplitInfo) => {
-      if(userSplitInfo.selected){
-        userSplitInfo.dishAmount = parseFloat(userSplitInfo.splitPortion) * newBaseSplitAmount;
+      if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
+        userSplitInfo.dishAmount = userSplitInfo.splitPortion * newBaseSplitAmount;
+      } else {
+        userSplitInfo.dishAmount = 0
       }
     })
     return {
@@ -91,7 +94,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
   else {
     const tempDishSplitRecord = {
       userID: personInfo.userID,
-      splitPortion: 0,
+      splitPortion: '',
       dishAmount: 0,
       selected: true
     }
@@ -105,6 +108,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
 
 const userPortionChanged = ([ newInputText, index, state ]) => {
   const { currentTotalSplits, currentPricePerItem, currentDishCount } =  state;
+  const newInputFloat = parseFloat(newInputText);
   const tempCurrentDishSplit = state.currentDishSplit;
   const tempUserSplitRecord = tempCurrentDishSplit[index];
   // calculate the previous value of the user's portion
@@ -114,17 +118,23 @@ const userPortionChanged = ([ newInputText, index, state ]) => {
     delete tempUserSplitRecord.previousSplitPortion;
   }
   // calculate renewed total splits of the dish into people
-  const newTotalSplits = currentTotalSplits + (newInputText - previousValue); // new split count
+  const newTotalSplits = currentTotalSplits + (newInputFloat - previousValue); // new split count
 
   const newBaseSplitAmount = (currentPricePerItem * currentDishCount) / newTotalSplits; // new base split count
 
-  tempUserSplitRecord.splitPortion = newInputText;
+  tempUserSplitRecord.splitPortion = newInputFloat;
   tempCurrentDishSplit[index] = tempUserSplitRecord;
   tempCurrentDishSplit.map((userSplitInfo) => {
     if(userSplitInfo.selected){
-      userSplitInfo.dishAmount = parseFloat(userSplitInfo.splitPortion) * newBaseSplitAmount;
+      if(userSplitInfo.splitPortion){
+        userSplitInfo.dishAmount = userSplitInfo.splitPortion * newBaseSplitAmount;
+      } else {
+        userSplitInfo.dishAmount = 0;
+      }
     }
   })
+  // if user types 1. , . is removed in parseFloat, we need to let it get typed
+  tempCurrentDishSplit[index].splitPortion = newInputText;
 
   return {
     currentDishSplit: tempCurrentDishSplit,

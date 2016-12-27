@@ -74,8 +74,22 @@ class DishSplitScene extends React.Component {
     } = this.state;
     if(currentDishCount && currentDishName && currentPricePerItem){
       const { newItem,dishID, billData } = this.props;
+      const typeConvertedDishSplit = [];
+      // convert strings to floats for each user reacord
+      currentDishSplit.map((userSplitInfo) => {
+        const tempUserSplitInfo = userSplitInfo;
+        let { splitPortion, dishAmount } = tempUserSplitInfo
+        if(tempUserSplitInfo.selected && (splitPortion && splitPortion !== '0')){
+          tempUserSplitInfo.splitPortion = splitPortion ? parseFloat(splitPortion) : 0;
+          tempUserSplitInfo.dishAmount = dishAmount ? parseFloat(dishAmount) : 0;
+          delete tempUserSplitInfo.selected;
+          delete tempUserSplitInfo.previousSplitPortion;
+          typeConvertedDishSplit.push(tempUserSplitInfo);
+        }
+
+      })
       let tempDishId = dishID;
-      if(!tempDishId){
+      if(tempDishId === undefined){
         tempDishId = billData.dishes.length;
       }
       const newDishBasicInfo = {
@@ -86,9 +100,9 @@ class DishSplitScene extends React.Component {
       };
       const newDishSplitInfo = {
         dishID: tempDishId,
-        baseSplitAmount: currentBaseSplitAmount,
+        baseSplitAmount: currentTotalSplits?currentBaseSplitAmount:0, // if 0 splits , make the Infinity base amount to 0
         totalSplits: currentTotalSplits,
-        dishSplit: currentDishSplit
+        dishSplit: typeConvertedDishSplit
       }
       dishSplitActions.saveDishSplitAction(billRecordIndex, billData.billID, newDishBasicInfo, newDishSplitInfo, newItem);
       this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', billRecordIndex: billRecordIndex, routeName: ROUTES.billSplitPage});
@@ -98,7 +112,6 @@ class DishSplitScene extends React.Component {
   }
 
   onPersonSelectToggle(checked, index){
-    console.log(checked, index);
     const { people } = this.props.billData;
     if(!checked){
       const newState = Object.assign({}, this.state,
@@ -141,7 +154,7 @@ class DishSplitScene extends React.Component {
   }
 
   onUserPortionChange(event, index){
-    const newInputText = event.nativeEvent.text;
+    let newInputText = event.nativeEvent.text;
     const tempCurrentDishSplit = this.state.currentDishSplit;
     const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(event.nativeEvent.text);
     const tempUserSplitRecord = tempCurrentDishSplit[index];

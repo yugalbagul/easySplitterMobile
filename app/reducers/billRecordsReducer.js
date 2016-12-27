@@ -5,6 +5,8 @@ const initialState = new List([
   {
     billID: 0,
     restaurantName: 'Leon Grill',
+    billName:'Leon Grill with Kunal',
+    totalBillAmount: 360,
     dishes: [
       {
         dishID: 0,
@@ -42,9 +44,14 @@ const saveDishInfo = (state, action) => {
   const billRecord = state.get(billRecordIndex.toString());
   const newDishesArray = billRecord.dishes;
   const dishIndex = newDishesArray.findIndex((dish) => dish.dishID === dishInfo.dishID);
+  const newDishAmount = dishInfo.count * dishInfo.pricePerItem;
   if(dishIndex !== -1){
+    const previousDishAmount = newDishesArray[dishIndex].count * newDishesArray[dishIndex].pricePerItem;
+    const deltaDishAmount = newDishAmount - previousDishAmount;
+    billRecord.totalBillAmount = billRecord.totalBillAmount + deltaDishAmount;
     newDishesArray[dishIndex] = dishInfo;
   } else {
+    billRecord.totalBillAmount = billRecord.totalBillAmount + newDishAmount;
     newDishesArray.push(dishInfo);
   }
   billRecord.dishes = newDishesArray;
