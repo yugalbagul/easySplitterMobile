@@ -24,7 +24,7 @@ const initialState = new Map({
 const newBillRecord = {
   restaurantName: '',
   billName:'',
-  totalBillAmount: 0,
+  totalBillAmount: '',
   dishes: [],
   people: [
     {
@@ -48,8 +48,10 @@ const newSplitRecord = {
 }
 
 
-const saveDishInfo = (billRecord, action) => {
+const saveDishInfo = (state, action) => {
   const { dishInfo } = action;
+  const billRecord = state.get('billRecord');
+  const currentBillAmount = parseFloat(state.get('currentBillAmount'));
   if(billRecord){
     const newBillRecord = billRecord.toJS();
     const newDishesArray = newBillRecord.dishes;
@@ -58,14 +60,13 @@ const saveDishInfo = (billRecord, action) => {
     if(dishIndex !== -1){
       const previousDishAmount = newDishesArray[dishIndex].count * newDishesArray[dishIndex].pricePerItem;
       const deltaDishAmount = newDishAmount - previousDishAmount;
-      newBillRecord.totalBillAmount = newBillRecord.totalBillAmount + deltaDishAmount;
+      newBillRecord.totalBillAmount = currentBillAmount + deltaDishAmount;
       newDishesArray[dishIndex] = dishInfo;
     } else {
-      newBillRecord.totalBillAmount = newBillRecord.totalBillAmount + newDishAmount;
+      newBillRecord.totalBillAmount = currentBillAmount;
       newDishesArray.push(dishInfo);
     }
     newBillRecord.dishes = newDishesArray;
-
     return newBillRecord;
   }
   return billRecord;
@@ -108,8 +109,10 @@ export default (state = initialState , action) => {
     let newState = state.set('newBillId', action.billID);
     newBillRecord.id = action.billID;
     newSplitRecord.billID = action.billID
-    newState.set('billRecord', fromJS(newBillRecord));
-    newState.set('splitRecord', fromJS(newSplitRecord));
+    newState = newState.set('billRecord', fromJS(newBillRecord));
+    newState = newState.set('splitRecord', fromJS(newSplitRecord));
+    newState = newState.set('currentBillName', newBillRecord.billName);
+    newState = newState.set('currentBillAmount', newBillRecord.totalBillAmount);
     return newState;
   }
 
@@ -117,10 +120,11 @@ export default (state = initialState , action) => {
     return initialState;
 
   case SAVE_DISH_SPLIT:{
-    const dishInfo = saveDishInfo(state.get('billRecord'),action);
+    const dishInfo = saveDishInfo(state,action);
     const dishSplitInfo = saveDishSplit(state.get('splitRecord'), action);
     let newState = state.set('billRecord', fromJS(dishInfo));
     newState = newState.set('splitRecord', fromJS(dishSplitInfo));
+    newState = newState.set('currentBillAmount', dishInfo.totalBillAmount.toString());
     return newState;
   }
 
@@ -134,9 +138,9 @@ export default (state = initialState , action) => {
   }
 
   case CHANGE_BILL_NAME:
-    return state.set('currentBillName', action.newName);
+    return state.set('currentBillName', action.newBillName);
   case CHANGE_BILL_AMOUNT:
-    return state.set('currentBillAmount', action.amount);
+    return state.set('currentBillAmount', action.newBillAmount);
   default:
     return state;
   }

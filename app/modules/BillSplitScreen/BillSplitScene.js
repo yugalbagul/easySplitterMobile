@@ -6,7 +6,7 @@ import { isEmpty } from 'lodash';
 import { styles } from './styles';
 import { ROUTES } from '../../constants';
 import * as dishSplitActions from '../../actions/dishSplitActions';
-import { onBillNameChangeAction, onBillAmountChangeAction } from '../../actions/billsActions'
+import { onBillNameChangeAction, onBillAmountChangeAction, persistBillRecordAction } from '../../actions/billsActions'
 
 class BillSplitScene extends React.Component{
   constructor(){
@@ -28,7 +28,7 @@ class BillSplitScene extends React.Component{
 
   componentWillMount(){
     if(this.props.billRecord){
-      const { dishes, billName, totalBillAmount } = this.props.billRecord;
+      const { dishes } = this.props.billRecord;
       const { dishSplitMap } = this.props.splitRecord;
       const dishesArray = [];
 
@@ -42,13 +42,9 @@ class BillSplitScene extends React.Component{
           dataSource: this.state.dataSource.cloneWithRows(dishesArray),
           loadingState: false,
           showDishSplits: true,
-          currentBillName: billName,
-          currentBillAmount:totalBillAmount,
         })
       } else if (this.props.newBill){
         this.setState({
-          currentBillName: billName,
-          currentBillAmount:totalBillAmount,
           loadingState: false,
         })
       }
@@ -112,26 +108,25 @@ class BillSplitScene extends React.Component{
   }
 
   saveBill(){
-    const { billRecord, splitRecord } = this.props;
-    console.log('-------------');
-    console.log(billRecord);
-    console.log('-------------');
-    console.log(splitRecord);
+    const { billRecord, splitRecord, currentBillName, currentBillAmount } = this.props;
+    const tempBillRecord = Object.assign({}, billRecord, { billName: currentBillName, totalBillAmount: parseFloat(currentBillAmount) } );
+    this.props.persistBillRecordAction(tempBillRecord, splitRecord);
   }
 
   onBillNameChange(event) {
     this.props.onBillNameChangeAction(event.nativeEvent.text, this.props.billRecordID)
   }
-
   onBillAmountChange(event) {
-    this.props.onBillAmountChangeAction(parseFloat(event.nativeEvent.text), this.props.billRecordID)
+    const newText = event.nativeEvent.text;
+    const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(newText);
+    if(isNumber || !newText){
+      this.props.onBillAmountChangeAction(newText, this.props.billRecordID)
+    }
   }
 
   render() {
-    const { splitRecord, newBill, billRecord } = this.props;
-    console.log("re render");
-    const { billName, totalBillAmount } = billRecord;
-    const showActionContainer = (!totalBillAmount && newBill) ? false : true;
+    const { splitRecord, newBill, currentBillName, currentBillAmount } = this.props;
+    const showActionContainer = (!currentBillAmount && newBill) ? false : true;
 
 
     return(
@@ -143,7 +138,7 @@ class BillSplitScene extends React.Component{
             <TextInput
               placeholder={'Enter Bill name you whore'}
               style={styles.billInfoBillName}
-              value={billName}
+              value={currentBillName}
               autoCorrect = {false}
               onChange={(event) => {this.onBillNameChange(event)}}
             />
@@ -153,12 +148,12 @@ class BillSplitScene extends React.Component{
               keyboardType={'numeric'}
               placeholder={'Enter Amount Bitch'}
               style={styles.currentBillAmount}
-              value={totalBillAmount.toString()}
+              value={currentBillAmount.toString()}
               onChange={(event) => {this.onBillAmountChange(event)}}
             />
             <Text>Amount not split :
                 <Text style={{color:'red'}}>
-                  {parseFloat(totalBillAmount)  - splitRecord.totalAmountSplit}
+                  {parseFloat(currentBillAmount)  - splitRecord.totalAmountSplit}
                 </Text>
               </Text>
               <TouchableOpacity onPress={this.saveBill}>
@@ -196,6 +191,8 @@ BillSplitScene.propTypes = {
   newBill: React.PropTypes.bool,
   onBillNameChangeAction: React.PropTypes.func,
   onBillAmountChangeAction: React.PropTypes.func,
+  currentBillName: React.PropTypes.string,
+  currentBillAmount: React.PropTypes.string,
 }
 
 const matchStateToProps = (state, props) => {
@@ -203,6 +200,8 @@ const matchStateToProps = (state, props) => {
   return {
     billRecord: state.get('appStateReducer').get('billRecord') ? state.get('appStateReducer').get('billRecord').toJS() : null,
     splitRecord: state.get('appStateReducer').get('splitRecord')? state.get('appStateReducer').get('splitRecord').toJS() : null,
+    currentBillName: state.get('appStateReducer').get('currentBillName'),
+    currentBillAmount: state.get('appStateReducer').get('currentBillAmount'),
     billRecordID: billID,
   }
 }
@@ -211,7 +210,8 @@ const matchDispatchToProps = (dispatch) => {
   return{
     dishSplitActions: bindActionCreators(dishSplitActions,dispatch),
     onBillNameChangeAction: bindActionCreators(onBillNameChangeAction, dispatch),
-    onBillAmountChangeAction: bindActionCreators(onBillAmountChangeAction, dispatch)
+    onBillAmountChangeAction: bindActionCreators(onBillAmountChangeAction, dispatch),
+    persistBillRecordAction: bindActionCreators(persistBillRecordAction, dispatch)
   }
 }
 

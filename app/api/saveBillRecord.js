@@ -1,12 +1,19 @@
 import { firebaseDB } from '../../config/firebase/firebaseConfig';
 
-const saveBillRecord = (data) =>
+const saveBillRecord = (billRecord, splitRecord) =>
   new Promise((resolve, reject) => {
-    const newID = firebaseDB.child('/bills').push().key;
-    data.id = newID;
-    firebaseDB.child(`/bills/${newID}`).set(data).then((result) => {
+    firebaseDB.child(`/bills/${billRecord.id}`).set(billRecord).then((result) => {
+      if(result){
+        reject(result)
+      }
+      firebaseDB.child(`/splitRecords/${billRecord.id}`).set(splitRecord).then((splitRecordSave) => {
+        if(splitRecordSave){
+          reject(splitRecordSave)
+        }
+        resolve();
+      })
     });
-    resolve();
+
   })
 
 export default saveBillRecord;
