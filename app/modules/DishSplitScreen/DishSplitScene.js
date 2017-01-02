@@ -4,8 +4,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { isEmpty } from 'lodash';
 import CheckBox from 'react-native-checkbox';
 import { connect } from 'react-redux';
-import { ROUTES } from '../constants';
-import dishSplitCalculator from '../utils/dishSplitCalculator';
+import { ROUTES } from '../../constants';
+import dishSplitCalculator from '../../utils/dishSplitCalculator';
 
 class DishSplitScene extends React.Component {
   constructor(){
@@ -63,7 +63,7 @@ class DishSplitScene extends React.Component {
   }
 
   saveDishSplit(){
-    const { dishSplitActions, billRecordIndex } = this.props;
+    const { dishSplitActions, billRecordID } = this.props;
     const {
       currentDishCount,
       currentDishName,
@@ -104,8 +104,8 @@ class DishSplitScene extends React.Component {
         totalSplits: currentTotalSplits,
         dishSplit: typeConvertedDishSplit
       }
-      dishSplitActions.saveDishSplitAction(billRecordIndex, billData.billID, newDishBasicInfo, newDishSplitInfo, newItem);
-      this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', billRecordIndex: billRecordIndex, routeName: ROUTES.billSplitPage});
+      dishSplitActions.saveDishSplitAction(billRecordID, newDishBasicInfo, newDishSplitInfo, newItem);
+      this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', routeName: ROUTES.billSplitPage});
     }
 
 
@@ -163,12 +163,8 @@ class DishSplitScene extends React.Component {
       const newState = Object.assign({}, this.state, dishSplitCalculator('USER_PORTION_CHANGED', newInputText, index, this.state));
       this.setState(newState);
     } else if (!newInputText){
-      tempUserSplitRecord.previousSplitPortion = tempUserSplitRecord.splitPortion;
-      tempUserSplitRecord.splitPortion = newInputText;
-      tempCurrentDishSplit[index] = tempUserSplitRecord;
-      this.setState({
-        currentDishSplit: tempCurrentDishSplit,
-      });
+      const newState = Object.assign({}, this.state, dishSplitCalculator('USER_PORTION_CHANGED', '', index, this.state));
+      this.setState(newState);
     }
   }
 
@@ -310,7 +306,7 @@ DishSplitScene.propTypes = {
   dishData: React.PropTypes.object,
   dishSplitActions: React.PropTypes.object,
   dishID: React.PropTypes.number,
-  billRecordIndex: React.PropTypes.string,
+  billRecordID: React.PropTypes.string,
   newItem: React.PropTypes.bool,
   navigator: React.PropTypes.object,
 }

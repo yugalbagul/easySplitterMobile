@@ -1,2 +1,0 @@
-export const SAVE_DISH_SPLIT = 'SAVE_DISH_SPLIT';
-export const CANCEL_DISH_SPLIT = 'CANCEL_DISH_SPLIT';

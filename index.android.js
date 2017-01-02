@@ -9,9 +9,6 @@ import store from './app/store/configureStore'
 import ESNavigator from './app/routes'
 
 export default class easySplitterMobile extends Component {
-  componentWillMount() {
-    console.log("Calling Action")
-  }
   render() {
     return (
       <Provider store = {store}>

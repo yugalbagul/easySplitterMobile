@@ -108,7 +108,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
 
 const userPortionChanged = ([ newInputText, index, state ]) => {
   const { currentTotalSplits, currentPricePerItem, currentDishCount } =  state;
-  const newInputFloat = parseFloat(newInputText);
+  const newInputFloat = newInputText ? parseFloat(newInputText) : 0;
   const tempCurrentDishSplit = state.currentDishSplit;
   const tempUserSplitRecord = tempCurrentDishSplit[index];
   // calculate the previous value of the user's portion

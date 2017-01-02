@@ -1,9 +1,9 @@
 import React from 'react'
 import { Navigator } from 'react-native';
 import LoginContainer from './components/LoginContainer'
-import BillSplitScene from './containers/BillSplitScene';
-import DishSplitScene from './containers/DishSplitScene';
-import DashboardScene from './containers/DashboardScene';
+import BillSplitScene from './modules/BillSplitScreen/BillSplitScene';
+import DishSplitScene from './modules/DishSplitScreen/DishSplitScene';
+import DashboardScene from './modules/DashBoardScreen/DashboardScene';
 import { ROUTES } from './constants';
 
 export default class ESNavigator extends React.Component {
