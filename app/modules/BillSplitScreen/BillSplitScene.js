@@ -115,8 +115,17 @@ class BillSplitScene extends React.Component{
   }
 
   saveBill(){
-    const { billRecord, splitRecord, currentBillName, currentBillAmount } = this.props;
-    const tempBillRecord = Object.assign({}, billRecord, { billName: currentBillName, totalBillAmount: parseFloat(currentBillAmount) } );
+    const { billRecord, splitRecord, currentBillName, currentBillAmount, currentPeople, paidBy, multiplePaideByRecord } = this.props;
+    const updateObject = {
+      billName: currentBillName,
+      totalBillAmount: parseFloat(currentBillAmount),
+      people: currentPeople,
+      paidBy: paidBy
+    }
+    if(!isEmpty(multiplePaideByRecord)){
+      updateObject.multiplePaideByRecord = multiplePaideByRecord;
+    }
+    const tempBillRecord = Object.assign({}, billRecord, updateObject);
     this.props.persistBillRecordAction(tempBillRecord, splitRecord);
   }
 
@@ -141,7 +150,7 @@ class BillSplitScene extends React.Component{
 
   render() {
     const { splitRecord, newBill, currentBillName, currentBillAmount,
-      currentPeople, paidBy, showPaidByModal, showMultiplePaidByModal, 
+      currentPeople, paidBy, showPaidByModal, showMultiplePaidByModal,
       multiplePaideByRecord } = this.props;
     const showActionContainer = (!currentBillAmount && newBill) ? false : true;
     const peopleArray = Array.from(currentPeople);

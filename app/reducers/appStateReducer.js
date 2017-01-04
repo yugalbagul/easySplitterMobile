@@ -118,7 +118,7 @@ export default (state = initialState , action) => {
     newState = newState.set('splitRecord', fromJS(newSplitRecord));
     newState = newState.set('currentBillName', newBillRecord.billName);
     newState = newState.set('currentBillAmount', newBillRecord.totalBillAmount);
-    newState = newState.set('currentPeople', []);
+    newState = newState.set('currentPeople', newBillRecord.people);
     return newState;
   }
 
