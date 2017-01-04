@@ -64,7 +64,7 @@ const userSelectionRemoved = ([ index, people, state ]) => {
 const userSelectionAdded = ([ index, people, state ]) => {
   const tempCurrentDishSplit = state.currentDishSplit;
   const personInfo = people[index];
-  const userSplitPresent = tempCurrentDishSplit.findIndex((record) => record.userID === personInfo.userID);
+  const userSplitPresent = tempCurrentDishSplit.findIndex((record) => record.id === personInfo.id);
   if(userSplitPresent !== -1){
     const { currentDishCount, currentPricePerItem } = state;
 
@@ -93,7 +93,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
   }
   else {
     const tempDishSplitRecord = {
-      userID: personInfo.userID,
+      id: personInfo.id,
       splitPortion: '',
       dishAmount: 0,
       selected: true

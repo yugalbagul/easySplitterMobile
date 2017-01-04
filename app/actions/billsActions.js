@@ -2,14 +2,14 @@ import { ADD_NEW_BILL,
   CHANGE_BILL_NAME,
   CHANGE_BILL_AMOUNT,
   SET_BILL_FOR_EDIT,
-  BILL_PERSIST_SUCCESS } from './actionTypes'
+  BILL_PERSIST_SUCCESS,
+  SET_PAID_BY } from './actionTypes'
 import { generateBillID } from '../utils/generateIdUtils';
 import saveBillRecord from '../api/saveBillRecord';
 
 export const addNewBillAction = () => {
   return ((dispatch) => {
     const newBillId = generateBillID();
-    console.log(newBillId)
     dispatch({
       type: ADD_NEW_BILL,
       billID: newBillId
@@ -37,9 +37,7 @@ export const onBillAmountChangeAction = (newBillAmount, billID) =>  {
 
 export const persistBillRecordAction = (billRecord, splitRecord) => {
   return((dispatch) => {
-    console.log(billRecord);
     saveBillRecord(billRecord, splitRecord).then(() => {
-      console.log("Post persist to firebase ");
       dispatch({
         type: BILL_PERSIST_SUCCESS,
         billRecord,
@@ -47,4 +45,14 @@ export const persistBillRecordAction = (billRecord, splitRecord) => {
       })
     } , (error) => { console.error(error) })
   })
+}
+
+export const setPaidByAction = ({ paidBy, togglePaidByModal, toggleMultiplePaidByModal, multiplePaideByRecord }) => {
+  return {
+    type: SET_PAID_BY,
+    paidBy,
+    togglePaidByModal,
+    toggleMultiplePaidByModal,
+    multiplePaideByRecord
+  }
 }

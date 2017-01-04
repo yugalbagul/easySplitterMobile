@@ -46,5 +46,48 @@ export const styles  = StyleSheet.create({
     marginBottom: 1,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'black'
+  },
+
+// PaidByModal styles
+  paidByModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems:'center',
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  paidByModalInnerContainer: {
+    borderRadius: 10,
+    alignItems: 'flex-start',
+    padding: 20,
+    width: 300,
+    minHeight: 300,
+    backgroundColor: '#fff',
+
+  },
+  paidByModalList: {
+  },
+  paidByModalListItem:{
+    padding: 10,
+  },
+
+// MultiplePaidByModal
+
+
+})
+
+export const multiplePaidByModalStyles = StyleSheet.create({
+  container:{
+  },
+  remainingAmount:{
+  },
+  scrollView:{
+    borderTopWidth: StyleSheet.hairlineWidth
+  },
+  personRow:{
+    flexDirection:'row',
+    justifyContent:'space-around',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   }
 })

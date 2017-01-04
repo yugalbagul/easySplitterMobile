@@ -12,12 +12,12 @@ const initialState = new Map({
         totalSplits: 2,
         dishSplit: [
           {
-            userID: 1,
+            id: 1,
             splitPortion: 1,
             dishAmount: 100,
           },
           {
-            userID: 2,
+            id: 2,
             splitPortion: 1,
             dishAmount: 100,
           },

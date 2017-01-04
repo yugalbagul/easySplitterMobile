@@ -7,6 +7,7 @@ const initialState = new Map({
     restaurantName: 'Leon Grill',
     billName:'Leon Grill with Kunal',
     totalBillAmount: 360,
+    paidBy: 1,
     dishes: [
       {
         dishID: 0,
@@ -25,15 +26,15 @@ const initialState = new Map({
     ],
     people: [
       {
-        userID: 1,
+        id: 1,
         name: 'Yugal'
       },
       {
-        userID: 2,
+        id: 2,
         name: 'Saurbh'
       },
       {
-        userID: 3,
+        id: 3,
         name: 'Kunal'
       },
     ],

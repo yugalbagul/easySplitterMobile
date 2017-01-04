@@ -156,7 +156,7 @@ class DishSplitScene extends React.Component {
   onUserPortionChange(event, index){
     let newInputText = event.nativeEvent.text;
     const tempCurrentDishSplit = this.state.currentDishSplit;
-    const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(event.nativeEvent.text);
+    const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(newInputText);
     const tempUserSplitRecord = tempCurrentDishSplit[index];
     if(isNumber){
       // code to recalculate the current base split and currentTotalSplits
@@ -244,9 +244,9 @@ class DishSplitScene extends React.Component {
           <ScrollView contentContainerStyle={styles.dishSplitScroll}>
             {
               people.map((personInfo, index) => {
-                const personSplitInfo = this.state.currentDishSplit.find((item) => item.userID == personInfo.userID);
+                const personSplitInfo = this.state.currentDishSplit.find((item) => item.id == personInfo.id);
                 if(personSplitInfo){
-                  return (  <View style={styles.dishSplitPerson} key={personInfo.userID}>
+                  return (  <View style={styles.dishSplitPerson} key={personInfo.id}>
                   <CheckBox
                     checked={personSplitInfo.selected}
                     label={personInfo.name}
@@ -267,7 +267,7 @@ class DishSplitScene extends React.Component {
                  </View>)
                 } else {
                   return (
-                    <View style={styles.dishSplitPerson} key={personInfo.userID}>
+                    <View style={styles.dishSplitPerson} key={personInfo.id}>
                     <CheckBox
                       checked={ personSplitInfo && personSplitInfo.selected ? personSplitInfo.selected : false}
                       label={personInfo.name}

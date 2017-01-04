@@ -6,7 +6,8 @@ import {
   SET_BILL_FOR_EDIT,
   CHANGE_BILL_NAME,
   CHANGE_BILL_AMOUNT,
-  SAVE_DISH_SPLIT
+  SAVE_DISH_SPLIT,
+  SET_PAID_BY
 } from '../actions/actionTypes';
 
 const initialState = new Map({
@@ -18,7 +19,11 @@ const initialState = new Map({
   splitRecord: null,
   currentBillName: null,
   currentBillAmount: null,
-  people: null,
+  currentPeople: null,
+  paidBy: null,
+  multiplePaideByRecord: null,
+  showMultiplePaidByModal:false,
+  showPaidByModal: false
 });
 
 const newBillRecord = {
@@ -28,15 +33,15 @@ const newBillRecord = {
   dishes: [],
   people: [
     {
-      userID: 1,
+      id: 1,
       name: 'Yugal'
     },
     {
-      userID: 2,
+      id: 2,
       name: 'Saurbh'
     },
     {
-      userID: 3,
+      id: 3,
       name: 'Kunal'
     },
   ],
@@ -113,6 +118,7 @@ export default (state = initialState , action) => {
     newState = newState.set('splitRecord', fromJS(newSplitRecord));
     newState = newState.set('currentBillName', newBillRecord.billName);
     newState = newState.set('currentBillAmount', newBillRecord.totalBillAmount);
+    newState = newState.set('currentPeople', []);
     return newState;
   }
 
@@ -134,6 +140,11 @@ export default (state = initialState , action) => {
     newState = newState.set('currentBillName', action.billRecord.billName);
     newState = newState.set('currentBillAmount', action.billRecord.totalBillAmount);
     newState = newState.set('billIdUnderEdit', action.billRecord.id);
+    newState = newState.set('currentPeople', action.billRecord.people);
+    newState = newState.set('paidBy', action.billRecord.paidBy);
+    if(action.billRecord.paidBy === 'multiple'){
+      newState = newState.set('multiplePaideByRecord', action.billRecord.multiplePaideByRecord);
+    }
     return newState;
   }
 
@@ -141,6 +152,40 @@ export default (state = initialState , action) => {
     return state.set('currentBillName', action.newBillName);
   case CHANGE_BILL_AMOUNT:
     return state.set('currentBillAmount', action.newBillAmount);
+
+
+  case SET_PAID_BY: {
+    if(action.paidBy && action.paidBy !== 'multiple'){
+      // a single person was clicked on small modal
+      let newState = state.set('paidBy', action.paidBy);
+      newState = newState.set('showPaidByModal', false)
+      return newState;
+
+    } else if(action.paidBy  && action.toggleMultiplePaidByModal){
+      // to open/ close the multiple payer modal
+      let newState = state
+      if(action.paidBy === 'multiple'){
+        // 'Multiple' was clicked on small paid by modal
+        newState = newState.set('paidBy', action.paidBy);
+        newState = newState.set('showMultiplePaidByModal', true);
+      }
+      return newState;
+    } else if(!action.paidBy &&  !isEmpty(action.multiplePaideByRecord) && action.toggleMultiplePaidByModal ) {
+      // Save was clicked on multiple payer modal
+      let newState = state;
+      newState = newState.set('multiplePaideByRecord', action.multiplePaideByRecord);
+      newState = newState.set('showMultiplePaidByModal', false);
+      newState = newState.set('showPaidByModal', false);
+      return newState;
+    } else if(action.togglePaidByModal !== undefined){
+      // on PaidBy click of Bill split scene header or Close icon on small modal
+      return state.set('showPaidByModal' , !state.get('showPaidByModal'));
+    } else if(action.toggleMultiplePaidByModal !== undefined){
+      // on close click of mulsiplt split modal
+      return state.set('showMultiplePaidByModal' , !state.get('showMultiplePaidByModal'));
+    }
+    return state;
+  }
   default:
     return state;
   }
