@@ -13,6 +13,7 @@
     "react": "15.4.1",
     "react-native": "0.38.0",
     "react-native-checkbox": "^1.1.0",
+    "react-native-fbsdk": "^0.4.0",
     "react-native-selectme": "^1.2.3",
     "react-native-vector-icons": "^3.0.0",
     "react-redux": "^5.0.1",
