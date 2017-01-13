@@ -21,6 +21,8 @@ export default class MultiplePaidByModal extends React.Component {
 
   componentWillMount(){
     const { props: { people, multiplePaideByRecord } } = this;
+    console.log('in multiple modal');;
+    console.log(multiplePaideByRecord);
     if(!isEmpty(people)){
       let tempPaidAmountCovered = 0;
       const payersArray = [];
@@ -126,7 +128,7 @@ export default class MultiplePaidByModal extends React.Component {
                   payersArray.map((personInfo, index) => {
                     return (  <View style={styles.personRow} key={personInfo.id}>
                       <Text>
-                       {personInfo.name}
+                       {personInfo.displayName}
                       </Text>
                        <TextInput
                           keyboardType={'numeric'}

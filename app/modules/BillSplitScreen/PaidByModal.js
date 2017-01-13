@@ -52,7 +52,7 @@ export default class PaidByModal extends React.Component {
   renderRow(rowData,sectionID,rowID){
     return(
       <TouchableOpacity style={styles.paidByModalListItem} onPress={this.onSelectPaidBy.bind(this, rowData)}>
-          <Text>{rowData.name}</Text>
+          <Text>{rowData.displayName}</Text>
       </TouchableOpacity>
     )
   }

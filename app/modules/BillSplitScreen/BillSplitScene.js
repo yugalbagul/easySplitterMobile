@@ -95,6 +95,7 @@ class BillSplitScene extends React.Component{
       dishID: rowData.dishID,
       dishData: rowData,
       billData: this.props.billRecord,
+      people: this.props.currentPeople,
       dishSplitActions,
       billRecordID,
       navigator: this.props.navigator,
@@ -108,6 +109,7 @@ class BillSplitScene extends React.Component{
       routeName: ROUTES.dishSplitPage,
       newItem:true,
       billData: this.props.billRecord,
+      people: this.props.currentPeople,
       dishSplitActions,
       billRecordID,
       navigator: this.props.navigator,
@@ -115,18 +117,29 @@ class BillSplitScene extends React.Component{
   }
 
   saveBill(){
-    const { billRecord, splitRecord, currentBillName, currentBillAmount, currentPeople, paidBy, multiplePaideByRecord } = this.props;
+    const { billRecord, splitRecord, currentBillName, currentBillAmount, currentPeople, navigator, currentUser, paidBy, newBill, multiplePaideByRecord } = this.props;
+    const billPeople = [];
+    currentPeople.map(item => {
+      billPeople.push({ id: item.id });
+    })
     const updateObject = {
       billName: currentBillName,
       totalBillAmount: parseFloat(currentBillAmount),
-      people: currentPeople,
+      people: billPeople,
       paidBy: paidBy
     }
     if(!isEmpty(multiplePaideByRecord)){
       updateObject.multiplePaideByRecord = multiplePaideByRecord;
     }
     const tempBillRecord = Object.assign({}, billRecord, updateObject);
-    this.props.persistBillRecordAction(tempBillRecord, splitRecord);
+    const actionParams = {
+      billRecord: tempBillRecord,
+      splitRecord,
+      newBill,
+      currentUser,
+      navigator
+    }
+    this.props.persistBillRecordAction(actionParams);
   }
 
   onBillNameChange(event) {
@@ -157,10 +170,10 @@ class BillSplitScene extends React.Component{
     const isPaidBySet =  paidBy? true : false;
     const isPaidByMultiple = paidBy === 'multiple';
     let paidByText = 'Choose';
-    peopleArray.push({ id: 'multiple', name: 'Multiple' })
+    peopleArray.push({ id: 'multiple', displayName: 'Multiple' })
     if(isPaidBySet && !isPaidByMultiple){
       const paidByPerson = peopleArray.find((person) => person.id === paidBy);
-      paidByText = paidByPerson.name;
+      paidByText = paidByPerson.displayName;
     } else if (isPaidByMultiple) {
       paidByText = 'Multiple'
     }
@@ -241,7 +254,7 @@ BillSplitScene.propTypes = {
   billRecord: React.PropTypes.object,
   dishSplitActions: React.PropTypes.object,
   navigator: React.PropTypes.object,
-  billRecordID:React.PropTypes.number,
+  billRecordID:React.PropTypes.string,
   newBill: React.PropTypes.bool,
   onBillNameChangeAction: React.PropTypes.func,
   onBillAmountChangeAction: React.PropTypes.func,
@@ -264,6 +277,8 @@ const matchStateToProps = (state, props) => {
     showMultiplePaidByModal: state.get('billSplitReducer').get('showMultiplePaidByModal'),
     multiplePaideByRecord: state.get('billSplitReducer').get('multiplePaideByRecord'),
     billRecordID: billID,
+    currentUser: state.get('loginReducer').get('currentUser') ? state.get('loginReducer').get('currentUser').toJS() : null
+
   }
 }
 

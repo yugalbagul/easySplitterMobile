@@ -112,7 +112,7 @@ class DishSplitScene extends React.Component {
   }
 
   onPersonSelectToggle(checked, index){
-    const { people } = this.props.billData;
+    const { people } = this.props;
     if(!checked){
       const newState = Object.assign({}, this.state,
         dishSplitCalculator('USER_SELECTION_ADDED', index, people, this.state));
@@ -169,7 +169,7 @@ class DishSplitScene extends React.Component {
   }
 
   render() {
-    const { people } = this.props.billData;
+    const { people } = this.props;
     const { currentPricePerItem ,currentDishCount, editName, currentDishName } = this.state;
     const totalDishAmount = !currentDishCount || !currentPricePerItem ? '' : (currentPricePerItem * currentDishCount);
     const disableSplitSection = totalDishAmount ? false : true;
@@ -249,7 +249,7 @@ class DishSplitScene extends React.Component {
                   return (  <View style={styles.dishSplitPerson} key={personInfo.id}>
                   <CheckBox
                     checked={personSplitInfo.selected}
-                    label={personInfo.name}
+                    label={personInfo.displayName}
                     onChange={(checked) => {if(!disableSplitSection){
                       this.onPersonSelectToggle(checked, index)}}}
                   />
@@ -270,7 +270,7 @@ class DishSplitScene extends React.Component {
                     <View style={styles.dishSplitPerson} key={personInfo.id}>
                     <CheckBox
                       checked={ personSplitInfo && personSplitInfo.selected ? personSplitInfo.selected : false}
-                      label={personInfo.name}
+                      label={personInfo.displayName}
                       onChange={(checked) => {if(!disableSplitSection){
                         this.onPersonSelectToggle(checked, index)}}}
                     />

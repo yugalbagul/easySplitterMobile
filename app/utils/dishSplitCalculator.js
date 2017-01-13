@@ -53,7 +53,7 @@ const userSelectionRemoved = ([ index, people, state ]) => {
     } else {
       userSplitInfo.dishAmount = 0
     }
-  })
+  });
   return {
     currentDishSplit: tempCurrentDishSplit,
     currentTotalSplits: newTotalSplits,

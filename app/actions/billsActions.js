@@ -4,11 +4,12 @@ import { ADD_NEW_BILL,
   SET_BILL_FOR_EDIT,
   BILL_PERSIST_SUCCESS,
   SET_PAID_BY,
-  SET_BILL_RECORDS_WITH_SPLIT
+  SET_INTIAL_DATA_ON_LOGIN
 } from './actionTypes'
 import { generateBillID } from '../utils/generateIdUtils';
 import saveBillRecord from '../api/saveBillRecord';
 import getUserBills from '../api/getUserBills';
+import { ROUTES } from '../constants'
 
 export const addNewBillAction = () => {
   return ((dispatch) => {
@@ -21,11 +22,12 @@ export const addNewBillAction = () => {
   })
 }
 
-export const setBillForEdit = (billRecord, splitRecord) => {
+export const setBillForEdit = (billRecord, splitRecord, billUsers) => {
   return {
     type: SET_BILL_FOR_EDIT,
     billRecord,
-    splitRecord
+    splitRecord,
+    billUsers
   }
 }
 
@@ -50,14 +52,15 @@ export const setPaidByAction = ({ paidBy, togglePaidByModal, toggleMultiplePaidB
   }
 }
 
-export const persistBillRecordAction = (billRecord, splitRecord) => {
+export const persistBillRecordAction = ({ billRecord, splitRecord, newBill, currentUser, navigator }) => {
   return((dispatch) => {
-    saveBillRecord(billRecord, splitRecord).then(() => {
+    saveBillRecord({ billRecord, splitRecord, newBill, currentUser }).then(() => {
       dispatch({
         type: BILL_PERSIST_SUCCESS,
         billRecord,
         splitRecord,
       })
+      navigator.push({title:'Dish Split Page', routeName: ROUTES.dashBoard});
     } , (error) => { console.error(error) })
   })
 }
@@ -67,17 +70,27 @@ export const getUserBillsAction = (userId) => dispatch => {
   getUserBills(userId).then(result => {
     const billRecords = {};
     const splitRecords = {};
-    result.map((item) => {
+    const userRecords = {};
+    const bills = result.bills;
+    const users = result.users;
+    if(bills)
+    bills.map((item) => {
       if(item){
         splitRecords[item.id] = item.splitRecord;
         delete item.splitRecord;
         billRecords[item.id] = item
       }
     })
+    users.map((item) => {
+      if(item){
+        userRecords[item.id] = item;
+      }
+    })
     dispatch({
-      type: SET_BILL_RECORDS_WITH_SPLIT,
+      type: SET_INTIAL_DATA_ON_LOGIN,
       billRecords,
-      splitRecords
+      splitRecords,
+      userRecords
     })
   })
   dispatch({

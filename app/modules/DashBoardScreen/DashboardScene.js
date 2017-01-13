@@ -29,12 +29,9 @@ class DashboardScene extends React.Component {
     }
   }
 
-
-
   componentDidMount() {
     const { props: { currentUser, getUserBillsAction } } = this
     if(currentUser){
-      console.log('doing bills fetch');
       getUserBillsAction(currentUser.id);
     }
   }
@@ -55,9 +52,16 @@ class DashboardScene extends React.Component {
   }
 
   onBillRecordPress(rowData){
+    // TODO add strict check on all things
     const self = this;
     const splitRecord = self.props.splitRecords[rowData.id];
-    this.props.setBillForEdit(rowData, splitRecord);
+    const billUsers = [];
+    const { userRecords } = self.props;
+    const billPeopleIds = Array.from(rowData.people);
+    billPeopleIds.map((item) => {
+      billUsers.push(userRecords[item.id]);
+    })
+    this.props.setBillForEdit(rowData, splitRecord, billUsers);
     this.props.navigator.push({title: 'Bill Split Page', routeName: ROUTES.billSplitPage})
   }
 
@@ -140,15 +144,17 @@ DashboardScene.propTypes = {
 }
 
 const matchStateToProps = (state) => {
-  const billRecords = state.get('billRecordsReducer') && state.get('billRecordsReducer').toJS ? state.get('billRecordsReducer').toJS() : [];
+  const billRecords = state.get('billRecordsReducer') && state.get('billRecordsReducer').toJS ? state.get('billRecordsReducer').toJS() : null;
   const splitRecords = state.get('splitRecordsReducer').toJS();
   const currentUser = state.get('loginReducer').get('currentUser') ? state.get('loginReducer').get('currentUser').toJS() : null;
-  const loadingFlag = state.get('appStateReducer').get('dashBoardLoading')
+  const loadingFlag = state.get('appStateReducer').get('dashBoardLoading');
+  const userRecords = state.get('userRecordsReducer') && state.get('userRecordsReducer').toJS ? state.get('userRecordsReducer').toJS() : null;
   return {
     billRecords,
     splitRecords,
     currentUser,
-    loadingFlag
+    loadingFlag,
+    userRecords
   }
 }
 

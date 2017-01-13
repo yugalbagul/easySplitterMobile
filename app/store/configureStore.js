@@ -6,6 +6,7 @@ import splitRecordsReducer from '../reducers/splitRecordsReducer';
 import billSplitReducer from '../reducers/billSplitReducer';
 import appStateReducer from '../reducers/appStateReducer';
 import loginReducer from '../reducers/loginReducer';
+import userRecordsReducer from '../reducers/userRecordsReducer';
 
 
 const combinedReducers   = combineReducers({
@@ -13,7 +14,8 @@ const combinedReducers   = combineReducers({
   splitRecordsReducer,
   billSplitReducer,
   loginReducer,
-  appStateReducer
+  appStateReducer,
+  userRecordsReducer
 })
 
 

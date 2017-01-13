@@ -1,7 +1,10 @@
 import { firebaseDB } from '../../config/firebase/firebaseConfig';
 
-const saveBillRecord = (billRecord, splitRecord) =>
+const saveBillRecord = ({ billRecord, splitRecord, newBill, currentUser }) =>
   new Promise((resolve, reject) => {
+    if(newBill){
+      firebaseDB.child(`/userBills/${currentUser.id}/${billRecord.id}`).set(true);
+    }
     firebaseDB.child(`/bills/${billRecord.id}`).set(billRecord).then((result) => {
       if(result){
         reject(result)

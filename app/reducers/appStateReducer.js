@@ -1,5 +1,5 @@
 import { Map } from 'immutable';
-import { LOGIN_SUCCESS, SET_DASHBOARD_LOADING, SET_BILL_RECORDS_WITH_SPLIT } from '../actions/actionTypes';
+import { LOGIN_SUCCESS, SET_DASHBOARD_LOADING, SET_INTIAL_DATA_ON_LOGIN } from '../actions/actionTypes';
 
 
 const intialState = new Map({
@@ -16,7 +16,7 @@ export default function (state = intialState, action) {
 
   case SET_DASHBOARD_LOADING:
     return state.set('dashBoardLoading', action.status);
-  case SET_BILL_RECORDS_WITH_SPLIT:
+  case SET_INTIAL_DATA_ON_LOGIN:
     return state.set('dashBoardLoading', false);
   default:
     return state;

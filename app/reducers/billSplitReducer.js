@@ -140,7 +140,7 @@ export default (state = initialState , action) => {
     newState = newState.set('currentBillName', action.billRecord.billName);
     newState = newState.set('currentBillAmount', action.billRecord.totalBillAmount);
     newState = newState.set('billIdUnderEdit', action.billRecord.id);
-    newState = newState.set('currentPeople', action.billRecord.people);
+    newState = newState.set('currentPeople', action.billUsers);
     newState = newState.set('paidBy', action.billRecord.paidBy);
     if(action.billRecord.paidBy === 'multiple'){
       newState = newState.set('multiplePaideByRecord', action.billRecord.multiplePaideByRecord);
