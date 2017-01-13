@@ -252,17 +252,17 @@ BillSplitScene.propTypes = {
 }
 
 const matchStateToProps = (state, props) => {
-  const billID = props.newBill ? state.getIn(['appStateReducer', 'newBillID']): state.getIn(['appStateReducer', 'billIdUnderEdit']);
+  const billID = props.newBill ? state.getIn(['billSplitReducer', 'newBillID']): state.getIn(['billSplitReducer', 'billIdUnderEdit']);
   return {
-    billRecord: state.get('appStateReducer').get('billRecord') ? state.get('appStateReducer').get('billRecord').toJS() : null,
-    splitRecord: state.get('appStateReducer').get('splitRecord')? state.get('appStateReducer').get('splitRecord').toJS() : null,
-    currentBillName: state.get('appStateReducer').get('currentBillName'),
-    currentBillAmount: state.get('appStateReducer').get('currentBillAmount'),
-    currentPeople: state.get('appStateReducer').get('currentPeople'),
-    paidBy: state.get('appStateReducer').get('paidBy'),
-    showPaidByModal: state.get('appStateReducer').get('showPaidByModal'),
-    showMultiplePaidByModal: state.get('appStateReducer').get('showMultiplePaidByModal'),
-    multiplePaideByRecord: state.get('appStateReducer').get('multiplePaideByRecord'),
+    billRecord: state.get('billSplitReducer').get('billRecord') ? state.get('billSplitReducer').get('billRecord').toJS() : null,
+    splitRecord: state.get('billSplitReducer').get('splitRecord')? state.get('billSplitReducer').get('splitRecord').toJS() : null,
+    currentBillName: state.get('billSplitReducer').get('currentBillName'),
+    currentBillAmount: state.get('billSplitReducer').get('currentBillAmount'),
+    currentPeople: state.get('billSplitReducer').get('currentPeople'),
+    paidBy: state.get('billSplitReducer').get('paidBy'),
+    showPaidByModal: state.get('billSplitReducer').get('showPaidByModal'),
+    showMultiplePaidByModal: state.get('billSplitReducer').get('showMultiplePaidByModal'),
+    multiplePaideByRecord: state.get('billSplitReducer').get('multiplePaideByRecord'),
     billRecordID: billID,
   }
 }

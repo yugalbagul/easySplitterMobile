@@ -5,3 +5,7 @@ export const generateBillID = () => {
   const key = firebaseDB.child('/bills').push().key
   return key;
 };
+
+export const generateUserID = () => {
+  return firebaseDB.child('/users').push().key;
+}

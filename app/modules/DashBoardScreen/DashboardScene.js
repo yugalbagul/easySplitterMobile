@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, ListView, StyleSheet, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { View, ListView, Text, TouchableHighlight, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { isEqual } from 'lodash';
 import { ROUTES } from '../../constants';
-import { addNewBillAction, setBillForEdit } from '../../actions/billsActions'
+import { styles } from './styles';
+import { addNewBillAction, setBillForEdit, getUserBillsAction } from '../../actions/billsActions'
 
 class DashboardScene extends React.Component {
   constructor(){
@@ -19,6 +21,7 @@ class DashboardScene extends React.Component {
   }
 
   componentWillMount(){
+
     if(this.props.billRecords){
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(this.props.billRecords)
@@ -26,11 +29,28 @@ class DashboardScene extends React.Component {
     }
   }
 
+
+
+  componentDidMount() {
+    const { props: { currentUser, getUserBillsAction } } = this
+    if(currentUser){
+      console.log('doing bills fetch');
+      getUserBillsAction(currentUser.id);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
-    if(nextProps.billRecords != this.props.billRecords){
+    if( !isEqual(nextProps.billRecords,this.props.billRecords)){
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(nextProps.billRecords)
       })
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { props: { currentUser, getUserBillsAction } } = this
+    if(currentUser && currentUser.id !== prevProps.currentUser.id){
+      getUserBillsAction(currentUser.id);
     }
   }
 
@@ -45,7 +65,7 @@ class DashboardScene extends React.Component {
     return (
       <TouchableHighlight style={styles.item} onPress={this.onBillRecordPress.bind(this, rowData)}>
         <View >
-          <Text>{rowData.restaurantName}</Text>
+          <Text>{rowData.billName}</Text>
         </View>
       </TouchableHighlight>
     )
@@ -58,38 +78,52 @@ class DashboardScene extends React.Component {
 
 
   render() {
+    const { props: { loadingFlag } } = this
     return(
       <View style={styles.container}>
-        <View style={styles.personInfo}>
-          <View style={styles.personInfoName}>
-
-            <Text style={styles.personInfoUserName}>Yugal Bagul</Text>
+        {loadingFlag ?
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              animating={true}
+              style={[styles.loadingIndicator, {height: 80}]}
+              size="large"
+              />
           </View>
-          <View style={styles.personAmountInfo}>
-            <Text>You owe :
-              <Text style={{color:'red'}}>
-                200
-              </Text>
-            </Text>
-            <Text>You receive :
-              <Text style={{color:'green'}}>
-                100
-              </Text>
-            </Text>
+            :
+          <View style={styles.sceneContent}>
+            <View style={styles.personInfo}>
+              <View style={styles.personInfoName}>
+
+                <Text style={styles.personInfoUserName}>Yugal Bagul</Text>
+              </View>
+              <View style={styles.personAmountInfo}>
+                <Text>You owe :
+                  <Text style={{color:'red'}}>
+                    200
+                  </Text>
+                </Text>
+                <Text>You receive :
+                  <Text style={{color:'green'}}>
+                    100
+                  </Text>
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity onPress={this.addNewBill}>
+                  <Text style={styles.addNewItemText}>New Item</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ListView
+              dataSource={this.state.dataSource}
+              renderRow={this.renderRow}
+              style={styles.list}
+            />
           </View>
-        </View>
+        }
 
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity onPress={this.addNewBill}>
-              <Text style={styles.addNewItemText}>New Item</Text>
-          </TouchableOpacity>
-        </View>
-
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow}
-          style={styles.list}
-        />
     </View>
     )
   }
@@ -98,16 +132,23 @@ class DashboardScene extends React.Component {
 DashboardScene.propTypes = {
   billRecords: React.PropTypes.object,
   navigator: React.PropTypes.object,
+  currentUser: React.PropTypes.object,
   addNewBillAction: React.PropTypes.func,
   setBillForEdit: React.PropTypes.func,
+  loadingFlag: React.PropTypes.bool,
+  getUserBillsAction: React.PropTypes.func
 }
 
 const matchStateToProps = (state) => {
   const billRecords = state.get('billRecordsReducer') && state.get('billRecordsReducer').toJS ? state.get('billRecordsReducer').toJS() : [];
   const splitRecords = state.get('splitRecordsReducer').toJS();
+  const currentUser = state.get('loginReducer').get('currentUser') ? state.get('loginReducer').get('currentUser').toJS() : null;
+  const loadingFlag = state.get('appStateReducer').get('dashBoardLoading')
   return {
     billRecords,
-    splitRecords
+    splitRecords,
+    currentUser,
+    loadingFlag
   }
 }
 
@@ -115,50 +156,8 @@ const matchDispatchToProps = (dispatch) => {
   return{
     addNewBillAction: bindActionCreators(addNewBillAction, dispatch),
     setBillForEdit: bindActionCreators(setBillForEdit, dispatch),
+    getUserBillsAction: bindActionCreators(getUserBillsAction, dispatch),
   }
 }
 
 export default connect(matchStateToProps, matchDispatchToProps)(DashboardScene);
-
-const styles  = StyleSheet.create({
-  container: {
-    flex:1,
-  },
-  // Bill info styles
-  personInfo:{
-    borderBottomWidth: 1,
-    padding:10
-  },
-  personInfoName: {
-  },
-  personInfoUserName:{
-    fontSize: 20,
-  },
-
-  //action container styles
-  actionsContainer:{
-    height:30,
-    flexDirection:'row',
-    justifyContent:'flex-end',
-    borderBottomWidth:1,
-    padding: 5
-
-  },
-  addNewItemText: {
-    color:'blue'
-  },
-
-
-  //  List view style
-  list : {
-    flex: 1
-  },
-  item : {
-    flex:1,
-    minHeight: 50,
-    marginBottom: 1,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'black'
-
-  }
-})

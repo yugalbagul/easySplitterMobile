@@ -3,9 +3,12 @@ import { ADD_NEW_BILL,
   CHANGE_BILL_AMOUNT,
   SET_BILL_FOR_EDIT,
   BILL_PERSIST_SUCCESS,
-  SET_PAID_BY } from './actionTypes'
+  SET_PAID_BY,
+  SET_BILL_RECORDS_WITH_SPLIT
+} from './actionTypes'
 import { generateBillID } from '../utils/generateIdUtils';
 import saveBillRecord from '../api/saveBillRecord';
+import getUserBills from '../api/getUserBills';
 
 export const addNewBillAction = () => {
   return ((dispatch) => {
@@ -35,6 +38,18 @@ export const onBillAmountChangeAction = (newBillAmount, billID) =>  {
 }
 
 
+
+
+export const setPaidByAction = ({ paidBy, togglePaidByModal, toggleMultiplePaidByModal, multiplePaideByRecord }) => {
+  return {
+    type: SET_PAID_BY,
+    paidBy,
+    togglePaidByModal,
+    toggleMultiplePaidByModal,
+    multiplePaideByRecord
+  }
+}
+
 export const persistBillRecordAction = (billRecord, splitRecord) => {
   return((dispatch) => {
     saveBillRecord(billRecord, splitRecord).then(() => {
@@ -47,12 +62,25 @@ export const persistBillRecordAction = (billRecord, splitRecord) => {
   })
 }
 
-export const setPaidByAction = ({ paidBy, togglePaidByModal, toggleMultiplePaidByModal, multiplePaideByRecord }) => {
-  return {
-    type: SET_PAID_BY,
-    paidBy,
-    togglePaidByModal,
-    toggleMultiplePaidByModal,
-    multiplePaideByRecord
-  }
+
+export const getUserBillsAction = (userId) => dispatch => {
+  getUserBills(userId).then(result => {
+    const billRecords = {};
+    const splitRecords = {};
+    result.map((item) => {
+      if(item){
+        splitRecords[item.id] = item.splitRecord;
+        delete item.splitRecord;
+        billRecords[item.id] = item
+      }
+    })
+    dispatch({
+      type: SET_BILL_RECORDS_WITH_SPLIT,
+      billRecords,
+      splitRecords
+    })
+  })
+  dispatch({
+    type: 'YOU'
+  })
 }

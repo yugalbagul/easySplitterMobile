@@ -1,5 +1,5 @@
 import { Map } from 'immutable';
-import { SAVE_DISH_SPLIT, ADD_NEW_BILL, CHANGE_BILL_NAME, CHANGE_BILL_AMOUNT } from '../actions/actionTypes'
+import { SET_BILL_RECORDS_WITH_SPLIT } from '../actions/actionTypes'
 
 const initialState = new Map({
   0 : {
@@ -45,6 +45,9 @@ const initialState = new Map({
 
 export default function (state = initialState, action) {
   switch (action.type) {
+  case SET_BILL_RECORDS_WITH_SPLIT: {
+    return state.mergeDeep(action.billRecords);
+  }
   default:
     return state;
   }
