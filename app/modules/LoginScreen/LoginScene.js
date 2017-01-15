@@ -28,6 +28,10 @@ class LoginScene extends React.Component {
     this.validatePassword = this.validatePassword.bind(this);
   }
 
+  componentDidMount() {
+    this.onLogin();
+  }
+
   loginWithFacebook(error, result) {
     const { props: { processLoginAction } } = this
     if (error) {

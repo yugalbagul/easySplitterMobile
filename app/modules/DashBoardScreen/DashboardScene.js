@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { isEqual } from 'lodash';
 import { ROUTES } from '../../constants';
 import { styles } from './styles';
-import { addNewBillAction, setBillForEdit, getUserBillsAction } from '../../actions/billsActions'
+import { addNewBillAction, setBillForEdit, getUserBillsAction, getUserFriendsAction } from '../../actions/billsActions'
 
 class DashboardScene extends React.Component {
   constructor(){
@@ -30,9 +30,10 @@ class DashboardScene extends React.Component {
   }
 
   componentDidMount() {
-    const { props: { currentUser, getUserBillsAction } } = this
+    const { props: { currentUser, getUserBillsAction, getUserFriendsAction } } = this
     if(currentUser){
       getUserBillsAction(currentUser.id);
+      getUserFriendsAction(currentUser.id);
     }
   }
 
@@ -45,9 +46,10 @@ class DashboardScene extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { props: { currentUser, getUserBillsAction } } = this
+    const { props: { currentUser, getUserBillsAction, getUserFriendsAction } } = this
     if(currentUser && currentUser.id !== prevProps.currentUser.id){
       getUserBillsAction(currentUser.id);
+      getUserFriendsAction(currentUser.id);
     }
   }
 
@@ -61,7 +63,7 @@ class DashboardScene extends React.Component {
     billPeopleIds.map((item) => {
       billUsers.push(userRecords[item.id]);
     })
-    this.props.setBillForEdit(rowData, splitRecord, billUsers);
+    this.props.setBillForEdit(rowData, splitRecord, billUsers, userRecords);
     this.props.navigator.push({title: 'Bill Split Page', routeName: ROUTES.billSplitPage})
   }
 
@@ -77,7 +79,7 @@ class DashboardScene extends React.Component {
 
   addNewBill(){
     this.props.addNewBillAction();
-    this.props.navigator.push({title: 'Bill Split Page', newBill: true, routeName: ROUTES.billSplitPage})
+    this.props.navigator.push({title: 'Bill Split Page', routeName: ROUTES.billSplitPage})
   }
 
 
@@ -140,14 +142,15 @@ DashboardScene.propTypes = {
   addNewBillAction: React.PropTypes.func,
   setBillForEdit: React.PropTypes.func,
   loadingFlag: React.PropTypes.bool,
-  getUserBillsAction: React.PropTypes.func
+  getUserBillsAction: React.PropTypes.func,
+  getUserFriendsAction: React.PropTypes.func
 }
 
 const matchStateToProps = (state) => {
   const billRecords = state.get('billRecordsReducer') && state.get('billRecordsReducer').toJS ? state.get('billRecordsReducer').toJS() : null;
   const splitRecords = state.get('splitRecordsReducer').toJS();
   const currentUser = state.get('loginReducer').get('currentUser') ? state.get('loginReducer').get('currentUser').toJS() : null;
-  const loadingFlag = state.get('appStateReducer').get('dashBoardLoading');
+  const loadingFlag = state.get('appStateReducer').get('userBillsLoading') || state.get('appStateReducer').get('userFriendsLoading');
   const userRecords = state.get('userRecordsReducer') && state.get('userRecordsReducer').toJS ? state.get('userRecordsReducer').toJS() : null;
   return {
     billRecords,
@@ -163,6 +166,7 @@ const matchDispatchToProps = (dispatch) => {
     addNewBillAction: bindActionCreators(addNewBillAction, dispatch),
     setBillForEdit: bindActionCreators(setBillForEdit, dispatch),
     getUserBillsAction: bindActionCreators(getUserBillsAction, dispatch),
+    getUserFriendsAction: bindActionCreators(getUserFriendsAction, dispatch)
   }
 }
 

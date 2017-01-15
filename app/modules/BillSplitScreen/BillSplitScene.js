@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ListView, Text, TouchableHighlight, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, ListView, Text, TouchableHighlight, TouchableOpacity, TextInput } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { isEmpty } from 'lodash';
@@ -8,8 +8,8 @@ import PaidByModal from './PaidByModal';
 import MultiplePaidByModal from './MultiplePaidByModal';
 import { ROUTES } from '../../constants';
 import * as dishSplitActions from '../../actions/dishSplitActions';
-import { onBillNameChangeAction, onBillAmountChangeAction, persistBillRecordAction, setPaidByAction } from '../../actions/billsActions'
-
+import { onBillNameChangeAction, onBillAmountChangeAction, persistBillRecordAction,setPaidByAction, setPeopleInvovledModalAction  } from '../../actions/billsActions'
+import PeopleInvolvedModal from './PeopleInvolvedModal';
 
 class BillSplitScene extends React.Component{
   constructor(){
@@ -21,7 +21,6 @@ class BillSplitScene extends React.Component{
       dataSource: ds,
       loadingState: true,
       showDishSplits: false,
-      showPaidByModal: false,
     }
     this.renderRow = this.renderRow.bind(this);
     this.addNewItem = this.addNewItem.bind(this);
@@ -29,6 +28,8 @@ class BillSplitScene extends React.Component{
     this.onBillNameChange = this.onBillNameChange.bind(this);
     this.onBillAmountChange = this.onBillAmountChange.bind(this);
     this.togglePaidByModal = this.togglePaidByModal.bind(this);
+    this.togglePeopleInvolvedModal = this.togglePeopleInvolvedModal.bind(this);
+    this.cancelBillSplit = this.cancelBillSplit.bind(this);
   }
 
   componentWillMount(){
@@ -161,10 +162,19 @@ class BillSplitScene extends React.Component{
     setPaidByAction(paidByActionObject);
   }
 
+  togglePeopleInvolvedModal() {
+    const { props: { setPeopleInvovledModalAction } } = this
+    setPeopleInvovledModalAction(true);
+  }
+
+  cancelBillSplit(){
+    this.props.navigator.pop();
+  }
+
   render() {
     const { splitRecord, newBill, currentBillName, currentBillAmount,
       currentPeople, paidBy, showPaidByModal, showMultiplePaidByModal,
-      multiplePaideByRecord } = this.props;
+      multiplePaideByRecord, showPeopleInvovledModal, allUserRecords, currentUser } = this.props;
     const showActionContainer = (!currentBillAmount && newBill) ? false : true;
     const peopleArray = Array.from(currentPeople);
     const isPaidBySet =  paidBy? true : false;
@@ -182,6 +192,9 @@ class BillSplitScene extends React.Component{
       <View style={styles.container}>
         {!this.state.loadingState ?
         <View style={styles.billInfo}>
+          <TouchableOpacity onPress={this.cancelBillSplit}>
+                <Text>Close</Text>
+          </TouchableOpacity>
           <View style={styles.billInfoName}>
             <TextInput
               placeholder={'Enter Bill name you whore'}
@@ -200,6 +213,10 @@ class BillSplitScene extends React.Component{
               onChange={(event) => {this.onBillAmountChange(event)}}
             />
 
+          <TouchableOpacity onPress={this.togglePeopleInvolvedModal}>
+                <Text>Set People Involved</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={this.togglePaidByModal}>
               <Text>PaidBy : {paidByText}</Text>
             </TouchableOpacity>
@@ -214,6 +231,14 @@ class BillSplitScene extends React.Component{
               </TouchableOpacity>
           </View>
         </View> : null }
+        {showPeopleInvovledModal ?
+          <PeopleInvolvedModal
+             showModal={ showPeopleInvovledModal }
+             currentPeople={ currentPeople }
+             allUserRecords= { allUserRecords }
+             currentUser = { currentUser }
+          /> : null
+        }
         {showPaidByModal ?
           <PaidByModal
             showPaidByModal={showPaidByModal}
@@ -262,6 +287,8 @@ BillSplitScene.propTypes = {
   currentBillAmount: React.PropTypes.number,
   currentPeople: React.PropTypes.array,
   setPaidByAction: React.PropTypes.func,
+  allUserRecords: React.PropTypes.object,
+  currentUser: React.PropTypes.object
 }
 
 const matchStateToProps = (state, props) => {
@@ -275,10 +302,12 @@ const matchStateToProps = (state, props) => {
     paidBy: state.get('billSplitReducer').get('paidBy'),
     showPaidByModal: state.get('billSplitReducer').get('showPaidByModal'),
     showMultiplePaidByModal: state.get('billSplitReducer').get('showMultiplePaidByModal'),
+    showPeopleInvovledModal: state.get('billSplitReducer').get('showPeopleInvovledModal'),
     multiplePaideByRecord: state.get('billSplitReducer').get('multiplePaideByRecord'),
+    newBill: state.get('billSplitReducer').get('newBill'),
     billRecordID: billID,
-    currentUser: state.get('loginReducer').get('currentUser') ? state.get('loginReducer').get('currentUser').toJS() : null
-
+    currentUser: state.get('loginReducer').get('currentUser') ? state.get('loginReducer').get('currentUser').toJS() : null,
+    allUserRecords : state.get('userRecordsReducer') && state.get('userRecordsReducer').toJS ? state.get('userRecordsReducer').toJS() : null
   }
 }
 
@@ -288,7 +317,8 @@ const matchDispatchToProps = (dispatch) => {
     onBillNameChangeAction: bindActionCreators(onBillNameChangeAction, dispatch),
     onBillAmountChangeAction: bindActionCreators(onBillAmountChangeAction, dispatch),
     persistBillRecordAction: bindActionCreators(persistBillRecordAction, dispatch),
-    setPaidByAction: bindActionCreators(setPaidByAction,dispatch)
+    setPaidByAction: bindActionCreators(setPaidByAction,dispatch),
+    setPeopleInvovledModalAction: bindActionCreators(setPeopleInvovledModalAction, dispatch),
   }
 }
 

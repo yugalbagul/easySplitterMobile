@@ -7,7 +7,9 @@ import {
   CHANGE_BILL_NAME,
   CHANGE_BILL_AMOUNT,
   SAVE_DISH_SPLIT,
-  SET_PAID_BY
+  SET_PAID_BY,
+  SET_CURRENT_PEOPLE,
+  SHOW_PEOPLE_INVOVLVED_MODAL
 } from '../actions/actionTypes';
 
 const initialState = new Map({
@@ -23,7 +25,8 @@ const initialState = new Map({
   paidBy: null,
   multiplePaideByRecord: null,
   showMultiplePaidByModal:false,
-  showPaidByModal: false
+  showPaidByModal: false,
+  showPeopleInvovledModal: false
 });
 
 const newBillRecord = {
@@ -119,6 +122,7 @@ export default (state = initialState , action) => {
     newState = newState.set('currentBillName', newBillRecord.billName);
     newState = newState.set('currentBillAmount', newBillRecord.totalBillAmount);
     newState = newState.set('currentPeople', newBillRecord.people);
+    newState = newState.set('newBill', true);
     return newState;
   }
 
@@ -153,6 +157,16 @@ export default (state = initialState , action) => {
   case CHANGE_BILL_AMOUNT:
     return state.set('currentBillAmount', action.newBillAmount);
 
+  case SET_CURRENT_PEOPLE:{
+    console.log(action.peopleInvolved);
+    let newState = state.set('currentPeople', action.peopleInvolved);
+    newState = newState.set('showPeopleInvovledModal', false);
+    return newState;
+  }
+
+  case SHOW_PEOPLE_INVOVLVED_MODAL: {
+    return state.set('showPeopleInvovledModal', action.status);
+  }
 
   case SET_PAID_BY: {
     if(action.paidBy && action.paidBy !== 'multiple'){

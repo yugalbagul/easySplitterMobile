@@ -1,5 +1,5 @@
 import { Map } from 'immutable';
-import { SET_INTIAL_DATA_ON_LOGIN } from '../actions/actionTypes';
+import { SET_BILLS_DATA_ON_LOGIN, BILL_PERSIST_SUCCESS } from '../actions/actionTypes';
 
 const initialState = new Map()
 
@@ -7,7 +7,10 @@ const initialState = new Map()
 
 export default function(state=initialState, action) {
   switch (action.type) {
-  case SET_INTIAL_DATA_ON_LOGIN: {
+  case BILL_PERSIST_SUCCESS: {
+    return state.set(action.billRecord.id, action.splitRecord);
+  }
+  case SET_BILLS_DATA_ON_LOGIN: {
     return state.mergeDeep(action.splitRecords);
   }
   default:

@@ -21,8 +21,6 @@ export default class MultiplePaidByModal extends React.Component {
 
   componentWillMount(){
     const { props: { people, multiplePaideByRecord } } = this;
-    console.log('in multiple modal');;
-    console.log(multiplePaideByRecord);
     if(!isEmpty(people)){
       let tempPaidAmountCovered = 0;
       const payersArray = [];

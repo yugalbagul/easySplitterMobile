@@ -69,6 +69,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
     const { currentDishCount, currentPricePerItem } = state;
 
     tempCurrentDishSplit[index].selected = true;
+    tempCurrentDishSplit[index].splitPortion = '1';
     // calculate new splits after removing this person
     let newTotalSplits = 0;
     tempCurrentDishSplit.map((userSplitInfo) => {

@@ -91,3 +91,29 @@ export const multiplePaidByModalStyles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   }
 })
+
+export const peopleInvolvedModal = StyleSheet.create({
+  container:{
+  },
+  emailInputContainer:{
+    height: 49,
+    width:280,
+    paddingBottom: 1,
+    paddingTop: 3,
+    marginBottom:10
+  },
+  scrollView:{
+    borderTopWidth: StyleSheet.hairlineWidth
+  },
+  personRow:{
+    flexDirection:'row',
+    justifyContent:'space-around',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  newPersonForm:{
+    padding: 5,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+  }
+})

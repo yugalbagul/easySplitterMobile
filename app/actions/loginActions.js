@@ -2,13 +2,15 @@ import { LOGIN_SUCCESS , LOGIN_FAILURAE, FIREBASE_QUERY_ERROR} from './actionTyp
 import { ROUTES } from '../constants';
 import processUserDataOnLogin from '../api/processFirebaseLogin';
 
-const processUserData = (data,dispatch) => {
+const processUserBillData = (data,dispatch) => {
+  // get
+  console.log('calling api for login');
   processUserDataOnLogin(data.userData).then((result) => {
     dispatch({
       type: LOGIN_SUCCESS,
       userData: result
     })
-    console.log("Login success navigating");
+    console.log(result);
     data.navigator.push({title:'Dish Split Page', routeName: ROUTES.dashBoard});
   }).catch((err) => {
     console.log(err);
@@ -28,7 +30,7 @@ export const processLoginAction = (data) => {
         provider: data.provider
       })
     } else {
-      processUserData(data, dispatch);
+      processUserBillData(data, dispatch);
     }
   })
 }

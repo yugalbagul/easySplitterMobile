@@ -17,12 +17,14 @@ const processUserDataOnLogin = (userData) =>
 
     firebaseDB.child('/users').orderByChild('email').equalTo(email).once('value').then((snap) => {
       if(snap.val()){
+        console.log("Got valr");
         const userSnapShot = snap.val();
         const keys = Object.keys(userSnapShot);
         if(keys.length !== 1){
           reject('Multiple user');
         } else {
           const userData = userSnapShot[keys[0]];
+          console.log('resolving data');
           resolve(userData)
         }
       } else {
