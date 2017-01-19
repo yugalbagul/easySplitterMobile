@@ -3,8 +3,6 @@ import { SET_BILLS_DATA_ON_LOGIN, BILL_PERSIST_SUCCESS } from '../actions/action
 
 const initialState = new Map()
 
-
-
 export default function(state=initialState, action) {
   switch (action.type) {
   case BILL_PERSIST_SUCCESS: {

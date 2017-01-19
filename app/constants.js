@@ -1,10 +1,40 @@
-export const MY_NAME = 'Yugal';
 export const ROUTES = {
-  dashBoard : 'DASHBOARDSCENE',
+  home : 'HOMESCENE',
   billSplitPage: 'BILLSPLITPAGE',
   dishSplitPage: 'DISHSPLITPAGE',
-  loginPage: 'LOGINPAGE'
+  loginPage: 'LOGINPAGE',
+  friendsPage: 'FRIENDSPAGE',
+  notificationsPage: 'NOTIFICATIONSPAGE',
+  userProfilePage: 'USERPROFILEPAGE'
 }
+
+export const bottomNavTabs = [
+  {
+    routeName: 'HOMESCENE',
+    active: false,
+    icon:'home'
+  },
+  {
+    routeName: 'FRIENDSPAGE',
+    active: false,
+    icon:'people-outline'
+  },
+  {
+    routeName: 'BILLSPLITPAGE',
+    active: false,
+    icon:'add-box'
+  },
+  {
+    routeName: 'NOTIFICATIONSPAGE',
+    active: false,
+    icon:'notifications'
+  },
+  {
+    routeName: 'USERPROFILEPAGE',
+    active: false,
+    icon:'account-circle'
+  }
+]
 
 export const LoginProviders = {
   facebook: 'FACEBOOK',

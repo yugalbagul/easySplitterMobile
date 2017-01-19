@@ -9,11 +9,13 @@ import { ADD_NEW_BILL,
   SET_CURRENT_PEOPLE,
   SHOW_PEOPLE_INVOVLVED_MODAL
 } from './actionTypes'
+import { Actions } from 'react-native-router-flux';
 import { generateBillID } from '../utils/generateIdUtils';
 import saveBillRecord from '../api/saveBillRecord';
 import getUserBills from '../api/getUserBills';
 import getUserFriends from '../api/getUserFriends';
 import { ROUTES } from '../constants'
+
 
 export const addNewBillAction = () => {
   return ((dispatch) => {
@@ -69,17 +71,15 @@ export const setPaidByAction = ({ paidBy, togglePaidByModal, toggleMultiplePaidB
   }
 }
 
-export const persistBillRecordAction = ({ billRecord, splitRecord, newBill, currentUser, navigator }) => {
+export const persistBillRecordAction = ({ billRecord, splitRecord, newBill, currentUser }) => {
   return((dispatch) => {
-    console.log('in ac');
-    console.log(newBill);
     saveBillRecord({ billRecord, splitRecord, newBill, currentUser }).then(() => {
       dispatch({
         type: BILL_PERSIST_SUCCESS,
         billRecord,
         splitRecord,
       })
-      navigator.pop();
+      Actions.pop();
     } , (error) => { console.error(error) })
   })
 }

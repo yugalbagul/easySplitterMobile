@@ -1,5 +1,6 @@
-import { LOGIN_SUCCESS , LOGIN_FAILURAE, FIREBASE_QUERY_ERROR} from './actionTypes';
+import { Actions } from 'react-native-router-flux';
 import { ROUTES } from '../constants';
+import { LOGIN_SUCCESS , LOGIN_FAILURAE, FIREBASE_QUERY_ERROR} from './actionTypes';
 import processUserDataOnLogin from '../api/processFirebaseLogin';
 
 const processUserBillData = (data,dispatch) => {
@@ -10,8 +11,7 @@ const processUserBillData = (data,dispatch) => {
       type: LOGIN_SUCCESS,
       userData: result
     })
-    console.log(result);
-    data.navigator.push({title:'Dish Split Page', routeName: ROUTES.dashBoard});
+    Actions[ROUTES.home]();
   }).catch((err) => {
     console.log(err);
     dispatch({

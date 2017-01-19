@@ -32,7 +32,7 @@ const initialState = new Map({
 const newBillRecord = {
   restaurantName: '',
   billName:'',
-  totalBillAmount: '',
+  totalBillAmount: 0,
   dishes: [],
   people: [
     {

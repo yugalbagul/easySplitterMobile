@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, ListView, Text, TouchableHighlight, TouchableOpacity, TextInput } from 'react-native';
+import { View, ListView, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, TextInput, DatePickerAndroid } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { isEmpty } from 'lodash';
+import { Actions } from 'react-native-router-flux';
 import { styles } from './styles';
 import PaidByModal from './PaidByModal';
 import MultiplePaidByModal from './MultiplePaidByModal';
@@ -10,6 +11,7 @@ import { ROUTES } from '../../constants';
 import * as dishSplitActions from '../../actions/dishSplitActions';
 import { onBillNameChangeAction, onBillAmountChangeAction, persistBillRecordAction,setPaidByAction, setPeopleInvovledModalAction  } from '../../actions/billsActions'
 import PeopleInvolvedModal from './PeopleInvolvedModal';
+import { DateComponent } from '../../components/DateComponent'
 
 class BillSplitScene extends React.Component{
   constructor(){
@@ -21,6 +23,7 @@ class BillSplitScene extends React.Component{
       dataSource: ds,
       loadingState: true,
       showDishSplits: false,
+      billDate: null
     }
     this.renderRow = this.renderRow.bind(this);
     this.addNewItem = this.addNewItem.bind(this);
@@ -30,6 +33,7 @@ class BillSplitScene extends React.Component{
     this.togglePaidByModal = this.togglePaidByModal.bind(this);
     this.togglePeopleInvolvedModal = this.togglePeopleInvolvedModal.bind(this);
     this.cancelBillSplit = this.cancelBillSplit.bind(this);
+    this.showDatePicker = this.showDatePicker.bind(this)
   }
 
   componentWillMount(){
@@ -49,11 +53,13 @@ class BillSplitScene extends React.Component{
           loadingState: false,
           showDishSplits: true,
           paidBy: 1,
+          billDate: this.props.billRecord.billDate? new Date(this.props.billRecord.billDate)  : new Date()
         })
       } else if (this.props.newBill){
         this.setState({
           loadingState: false,
           paidBy: 1,
+          billDate: new Date()
         })
       }
     }
@@ -90,8 +96,7 @@ class BillSplitScene extends React.Component{
 
   onDishRecordPress(rowData){
     const { dishSplitActions, billRecordID } = this.props;
-    this.props.navigator.push({
-      title:'Dish Split Page',
+    Actions[ROUTES.dishSplitPage]({
       routeName: ROUTES.dishSplitPage,
       dishID: rowData.dishID,
       dishData: rowData,
@@ -99,26 +104,23 @@ class BillSplitScene extends React.Component{
       people: this.props.currentPeople,
       dishSplitActions,
       billRecordID,
-      navigator: this.props.navigator,
     });
   }
 
   addNewItem(){
     const { dishSplitActions, billRecordID } = this.props;
-    this.props.navigator.push({
-      title:'Dish Split Page',
+    Actions[ROUTES.dishSplitPage]({
       routeName: ROUTES.dishSplitPage,
       newItem:true,
       billData: this.props.billRecord,
       people: this.props.currentPeople,
       dishSplitActions,
       billRecordID,
-      navigator: this.props.navigator,
     })
   }
 
   saveBill(){
-    const { billRecord, splitRecord, currentBillName, currentBillAmount, currentPeople, navigator, currentUser, paidBy, newBill, multiplePaideByRecord } = this.props;
+    const { billRecord, splitRecord, currentBillName, currentBillAmount, currentPeople, currentUser, paidBy, newBill, multiplePaideByRecord } = this.props;
     const billPeople = [];
     currentPeople.map(item => {
       billPeople.push({ id: item.id });
@@ -127,18 +129,31 @@ class BillSplitScene extends React.Component{
       billName: currentBillName,
       totalBillAmount: parseFloat(currentBillAmount),
       people: billPeople,
-      paidBy: paidBy
+      paidBy: paidBy,
+      billDate: this.state.billDate.toString()
     }
+    const amountPerPerson = {};
+    splitRecord.dishSplitMap.map((dishSplitRecord) => {
+      dishSplitRecord.dishSplit.map((personSplit) => {
+        if(amountPerPerson[personSplit.id]){
+          amountPerPerson[personSplit.id].billAmountToPay = amountPerPerson[personSplit.id].billAmountToPay + personSplit.dishAmount
+        } else {
+          amountPerPerson[personSplit.id] = {
+            billAmountToPay: personSplit.dishAmount
+          }
+        }
+      })
+    })
+    const tempSplitRecord = Object.assign({}, splitRecord, { amountPerPerson: amountPerPerson });
     if(!isEmpty(multiplePaideByRecord)){
       updateObject.multiplePaideByRecord = multiplePaideByRecord;
     }
     const tempBillRecord = Object.assign({}, billRecord, updateObject);
     const actionParams = {
       billRecord: tempBillRecord,
-      splitRecord,
+      splitRecord: tempSplitRecord,
       newBill,
       currentUser,
-      navigator
     }
     this.props.persistBillRecordAction(actionParams);
   }
@@ -152,6 +167,22 @@ class BillSplitScene extends React.Component{
     if(isNumber || !newText){
       this.props.onBillAmountChangeAction(newText, this.props.billRecordID)
     }
+  }
+
+  showDatePicker(){
+    const options = {
+      date: this.state.date,
+      mode: 'calender',
+      maxDate: new Date()
+    }
+    DatePickerAndroid.open(options).then(({ action, year , month, day }) => {
+      if (action !== DatePickerAndroid.dismissedAction) {
+        const tempDate = new Date(year, month, day);
+        this.setState({
+          billDate: tempDate
+        });
+      }
+    })
   }
 
   togglePaidByModal() {
@@ -168,7 +199,7 @@ class BillSplitScene extends React.Component{
   }
 
   cancelBillSplit(){
-    this.props.navigator.pop();
+    Actions.pop();
   }
 
   render() {
@@ -225,10 +256,14 @@ class BillSplitScene extends React.Component{
                 <Text style={{color:'red'}}>
                   {parseFloat(currentBillAmount)  - splitRecord.totalAmountSplit}
                 </Text>
-              </Text>
+            </Text>
               <TouchableOpacity onPress={this.saveBill}>
                 <Text>Save</Text>
               </TouchableOpacity>
+          <TouchableWithoutFeedback
+            onPress={this.showDatePicker}>
+            <View><Text>Date: <DateComponent date={this.state.billDate}/></Text></View>
+          </TouchableWithoutFeedback>
           </View>
         </View> : null }
         {showPeopleInvovledModal ?
@@ -278,7 +313,6 @@ BillSplitScene.propTypes = {
   splitRecord: React.PropTypes.object,
   billRecord: React.PropTypes.object,
   dishSplitActions: React.PropTypes.object,
-  navigator: React.PropTypes.object,
   billRecordID:React.PropTypes.string,
   newBill: React.PropTypes.bool,
   onBillNameChangeAction: React.PropTypes.func,

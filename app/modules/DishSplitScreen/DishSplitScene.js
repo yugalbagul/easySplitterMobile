@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { isEmpty } from 'lodash';
 import CheckBox from 'react-native-checkbox';
 import { connect } from 'react-redux';
+import { Actions } from 'react-native-router-flux'
 import { ROUTES } from '../../constants';
 import dishSplitCalculator from '../../utils/dishSplitCalculator';
 
@@ -105,7 +106,7 @@ class DishSplitScene extends React.Component {
         dishSplit: typeConvertedDishSplit
       }
       dishSplitActions.saveDishSplitAction(billRecordID, newDishBasicInfo, newDishSplitInfo, newItem);
-      this.props.navigator.replacePreviousAndPop({title: 'Bill Split Page', routeName: ROUTES.billSplitPage});
+      Actions[ROUTES.billSplitPage]();
     }
 
 

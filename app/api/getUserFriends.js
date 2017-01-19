@@ -22,8 +22,6 @@ const getUserFriends = (userId) => {
         resolve([])
       }
     }).then((userRecords) => {
-      console.log("in api call");
-      console.log(userRecords);
       if(userRecords && userRecords.length !== -1){
         resolve(userRecords);
       }
