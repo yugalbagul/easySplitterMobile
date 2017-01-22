@@ -37,7 +37,6 @@ class BottomNavigation extends React.Component{
     const { width: screenWidth } = Dimensions.get('window');
     const { props: { currentRoute } } = this;
     const itemWidthClass = { width:(screenWidth / 5)};
-    console.log(currentRoute);
     if(currentRoute && currentRoute !== ROUTES.billSplitPage){
       return(
         <View style={styles.container}>

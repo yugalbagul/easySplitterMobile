@@ -1,10 +1,13 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Modal, ListView, View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import CheckBox from 'react-native-checkbox';
-import { isEmpty } from 'lodash';
-import { multiplePaidByModalStyles as styles } from './styles';
+import { setPaidByAction } from '../../../actions/billsActions';
+import { isEmpty, isEqual } from 'lodash';
+import { multiplePaidByModalStyles as styles } from '../styles';
 
-export default class MultiplePaidByModal extends React.Component {
+class MultiplePaidByModal extends React.Component {
   constructor(){
     super();
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -19,13 +22,15 @@ export default class MultiplePaidByModal extends React.Component {
     this.onUserAmountPaidChange = this.onUserAmountPaidChange.bind(this);
   }
 
-  componentWillMount(){
-    const { props: { people, multiplePaideByRecord } } = this;
-    if(!isEmpty(people)){
+
+
+  componentWillReceiveProps(nextProps){
+    const { props: { currentPeople, multiplePaideByRecord } } = this;
+    if(!isEmpty(nextProps.currentPeople) && (!isEqual(currentPeople, nextProps.currentPeople) || isEmpty(this.state.payersArray))){
       let tempPaidAmountCovered = 0;
       const payersArray = [];
       if(!isEmpty(multiplePaideByRecord)){
-        people.map((person) => {
+        currentPeople.map((person) => {
           const paidByPersonRecord = multiplePaideByRecord.find((item) => item.id === person.id);
           const tempPayer = Object.assign({}, person , {
             selected: false,
@@ -35,7 +40,7 @@ export default class MultiplePaidByModal extends React.Component {
           payersArray.push(tempPayer);
         })
       } else {
-        people.map((person) => {
+        currentPeople.map((person) => {
           const tempPayer = Object.assign({}, person , {
             selected: false,
             amountPaid: ''
@@ -48,6 +53,13 @@ export default class MultiplePaidByModal extends React.Component {
         paidAmountCovered: tempPaidAmountCovered
       });
     }
+  }
+
+  shouldComponentUpdate(nextProps){
+    if(nextProps.showMultiplePaidByModal === this.props.showMultiplePaidByModal){
+      return false
+    }
+    return true;
   }
 
   onSave(){
@@ -106,7 +118,7 @@ export default class MultiplePaidByModal extends React.Component {
       <Modal
         animationType="slide"
         transparent={false}
-        visible={this.props.showModal}
+        visible={this.props.showMultiplePaidByModal}
         onRequestClose= {this.onRequestCloseHandler}
       >
         <View style={styles.container}>
@@ -151,9 +163,26 @@ export default class MultiplePaidByModal extends React.Component {
 }
 
 MultiplePaidByModal.propTypes = {
-  people: React.PropTypes.array,
+  currentPeople: React.PropTypes.array,
   setPaidByAction: React.PropTypes.func,
-  currentBillAmount: React.PropTypes.string,
-  showModal: React.PropTypes.bool,
+  currentBillAmount: React.PropTypes.number,
+  showMultiplePaidByModal: React.PropTypes.bool,
   multiplePaideByRecord: React.PropTypes.array
 }
+
+const matchStateToProps = (state) => {
+  return {
+    currentPeople: state.get('billSplitReducer').get('currentPeople'),
+    showMultiplePaidByModal: state.get('billSplitReducer').get('showMultiplePaidByModal'),
+    multiplePaideByRecord: state.get('billSplitReducer').get('multiplePaideByRecord'),
+    currentBillAmount: state.get('billSplitReducer').get('currentBillAmount')
+  }
+}
+
+const matchDispatchToProps = (dispatch) => {
+  return{
+    setPaidByAction: bindActionCreators(setPaidByAction,dispatch),
+  }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(MultiplePaidByModal)

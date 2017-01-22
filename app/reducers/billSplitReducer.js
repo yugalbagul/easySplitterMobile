@@ -6,22 +6,29 @@ import {
   SET_BILL_FOR_EDIT,
   CHANGE_BILL_NAME,
   CHANGE_BILL_AMOUNT,
+  CHANGE_BILL_DATE,
   SAVE_DISH_SPLIT,
   SET_PAID_BY,
   SET_CURRENT_PEOPLE,
-  SHOW_PEOPLE_INVOVLVED_MODAL
+  SHOW_PEOPLE_INVOVLVED_MODAL,
+  CANCEL_BILL_SPLIT
 } from '../actions/actionTypes';
 
 const initialState = new Map({
   newBillId: null,
+  // when app closes in unsaved state
   unsavedBillStatus : false,
   unsavedBillID: null,
+  //
   billIdUnderEdit: null,
   billRecord: null,
   splitRecord: null,
+  // bill Info
   currentBillName: null,
   currentBillAmount: null,
+  currentBillDate: null,
   currentPeople: null,
+  //
   paidBy: null,
   multiplePaideByRecord: null,
   showMultiplePaidByModal:false,
@@ -34,20 +41,7 @@ const newBillRecord = {
   billName:'',
   totalBillAmount: 0,
   dishes: [],
-  people: [
-    {
-      id: 1,
-      name: 'Yugal'
-    },
-    {
-      id: 2,
-      name: 'Saurbh'
-    },
-    {
-      id: 3,
-      name: 'Kunal'
-    },
-  ],
+  people: [],
 }
 
 const newSplitRecord = {
@@ -121,11 +115,12 @@ export default (state = initialState , action) => {
     newState = newState.set('splitRecord', fromJS(newSplitRecord));
     newState = newState.set('currentBillName', newBillRecord.billName);
     newState = newState.set('currentBillAmount', newBillRecord.totalBillAmount);
+    newState = newState.set('currentBillDate', new Date());
     newState = newState.set('currentPeople', newBillRecord.people);
     newState = newState.set('newBill', true);
     return newState;
   }
-
+  case CANCEL_BILL_SPLIT:
   case SAVE_BILL_RECORD:
     return initialState;
 
@@ -145,6 +140,7 @@ export default (state = initialState , action) => {
     newState = newState.set('currentBillAmount', action.billRecord.totalBillAmount);
     newState = newState.set('billIdUnderEdit', action.billRecord.id);
     newState = newState.set('currentPeople', action.billUsers);
+    newState = newState.set('currentBillDate', new Date(action.billRecord.billDate));
     newState = newState.set('paidBy', action.billRecord.paidBy);
     if(action.billRecord.paidBy === 'multiple'){
       newState = newState.set('multiplePaideByRecord', action.billRecord.multiplePaideByRecord);
@@ -156,9 +152,10 @@ export default (state = initialState , action) => {
     return state.set('currentBillName', action.newBillName);
   case CHANGE_BILL_AMOUNT:
     return state.set('currentBillAmount', action.newBillAmount);
+  case CHANGE_BILL_DATE:
+    return state.set('currentBillDate', action.newBillDate);
 
   case SET_CURRENT_PEOPLE:{
-    console.log(action.peopleInvolved);
     let newState = state.set('currentPeople', action.peopleInvolved);
     newState = newState.set('showPeopleInvovledModal', false);
     return newState;
@@ -181,6 +178,7 @@ export default (state = initialState , action) => {
       if(action.paidBy === 'multiple'){
         // 'Multiple' was clicked on small paid by modal
         newState = newState.set('paidBy', action.paidBy);
+        console.log('setting multiple paid by in reducer');
         newState = newState.set('showMultiplePaidByModal', true);
       }
       return newState;

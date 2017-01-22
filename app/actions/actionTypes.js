@@ -14,10 +14,12 @@ export const SAVE_BILL_RECORD = 'SAVE_BILL_RECORD';
 export const SET_CURRENT_PEOPLE = 'SET_CURRENT_PEOPLE';
 export const SET_PAID_BY = 'SET_PAID_BY';
 export const ADD_NEW_USER_TO_STORE = 'ADD_NEW_USER_TO_STORE';
+export const CANCEL_BILL_SPLIT = 'CANCEL_BILL_SPLIT';
 
 // Bill split page interactions
 export const CHANGE_BILL_NAME = 'CHANGE_BILL_NAME';
 export const CHANGE_BILL_AMOUNT = 'CHANGE_BILL_AMOUNT';
+export const CHANGE_BILL_DATE = 'CHANGE_BILL_DATE';
 export const SHOW_PEOPLE_INVOVLVED_MODAL = 'SHOW_PEOPLE_INVOVLVED_MODAL';
 
 // Data base related actions
