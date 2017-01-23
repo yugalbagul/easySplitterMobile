@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, ListView, Text, TouchableNativeFeedback } from 'react-native';
+import { View, ListView, Text, TouchableNativeFeedback, Image } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { isEmpty } from 'lodash';
 import { Actions } from 'react-native-router-flux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AmountWithSymbol from '../../../../components/AmountWithSymbol';
 import { ROUTES } from '../../../../constants';
 import createBillPersistRecord from '../../../../utils/createBillPersistRecord';
 import * as dishSplitActions from '../../../../actions/dishSplitActions';
 import { persistBillRecordAction  } from '../../../../actions/billsActions'
-import { styles } from './styles';
+import { styles, dishInfoStyle } from './styles';
+import { getImageIconFromName } from '../../../../utils/getImageIconFromName'
 
 
 class DishListContainer extends React.Component {
@@ -65,8 +67,7 @@ class DishListContainer extends React.Component {
   }
 
   onDishRecordPress(rowData){
-    const self = this;
-    const { dishSplitActions, billRecordID } = self.props;
+    const { dishSplitActions, billRecordID } = this.props;
     Actions[ROUTES.dishSplitPage]({
       dishID: rowData.dishID,
       dishData: rowData,
@@ -95,12 +96,37 @@ class DishListContainer extends React.Component {
   }
 
   renderRow(rowData) {
+    const imageIconSource = getImageIconFromName(rowData);
+    const dishAmountString = parseFloat(rowData.pricePerItem) * parseFloat(rowData.count)
+    console.log(dishAmountString);
+    console.log('-------')
+
     return(
-      <TouchableNativeFeedback>
-        <View>
-          <Text>
-            {rowData.dishName}
-          </Text>
+      <TouchableNativeFeedback onPress={this.onDishRecordPress.bind(this, rowData)}>
+        <View style={dishInfoStyle.dishRowContainer}>
+          <View style={dishInfoStyle.imageOuterView}>
+            <View style={dishInfoStyle.imageContainer}>
+              <Image source={imageIconSource} style={dishInfoStyle.dishItemImage}/>
+            </View>
+          </View>
+          <View style={dishInfoStyle.dishItemInfoContainer}>
+            <View style={dishInfoStyle.nameAmountContainer}>
+              <View style={dishInfoStyle.nameContainer}>
+                <Text style={dishInfoStyle.nameTextStyle}>
+                  {rowData.dishName}
+                </Text>
+              </View>
+              <View style={dishInfoStyle.amountContainer}>
+                <AmountWithSymbol amount={dishAmountString}
+                  currencyContainerStyle={{paddingRight: 3}}
+                  amountTextStyle ={dishInfoStyle.amountTextStyle}
+                  currencySymbolStyle = {dishInfoStyle.amountTextStyle}
+                  />
+              </View>
+
+            </View>
+
+          </View>
         </View>
       </TouchableNativeFeedback>
     )
@@ -109,9 +135,10 @@ class DishListContainer extends React.Component {
   render(){
     return(
       <View style={styles.container}>
+
         <View style={styles.addNewContainer}>
-          <View style={styles.addNewItemImageOuterView}>
-            <View style={styles.addNewItemImageContainer}>
+          <View style={styles.rowItemImageOuterView}>
+            <View style={styles.rowItemImageContainer}>
             <MaterialIcons size={24} name={'add'} style={styles.addNewItemImage}/>
             </View>
           </View>
@@ -119,14 +146,13 @@ class DishListContainer extends React.Component {
               <Text style={styles.addNewItemText}>
                 ADD ITEM
               </Text>
-
           </View>
         </View>
 
         <ListView
           dataSource={this.state.dataSource}
           renderRow={this.renderRow}
-
+          style={styles.listContainer}
         />
       <View style={styles.saveButtonContainer}>
         <Text>
