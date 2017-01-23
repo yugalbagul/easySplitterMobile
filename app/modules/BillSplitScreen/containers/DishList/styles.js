@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   },
 
   rowItemImageOuterView:{
-    flex: 2
+    flex: 1
   },
 
   rowItemImageContainer:{
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
     color: '#303030'
   },
   addNewItemTextContainer:{
-    flex: 10,
+    flex: 6,
     alignItems: 'flex-start',
     justifyContent: 'center'
   },
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
 
 
   saveButtonContainer:{
-
+    justifyContent: 'center',
   }
 })
 
@@ -53,7 +53,7 @@ export const dishInfoStyle = StyleSheet.create({
     paddingVertical: 8
   },
   imageOuterView:{
-    flex: 2
+    flex: 1
   },
 
   imageContainer:{
@@ -71,7 +71,7 @@ export const dishInfoStyle = StyleSheet.create({
     tintColor: '#FF9600'
   },
   dishItemInfoContainer:{
-    flex: 10,
+    flex: 6,
     alignItems: 'flex-start',
   },
 
@@ -86,11 +86,24 @@ export const dishInfoStyle = StyleSheet.create({
     alignItems:'flex-end'
   },
   nameTextStyle:{
-
+    fontSize: 16,
+    color: '#303030'
   },
   amountTextStyle:{
     fontSize: 14,
     fontWeight: '600',
     color: '#303030'
   },
+  splitInfoRow:{
+    flexDirection: 'row'
+  },
+  splitInfoPersonName:{
+    fontSize: 12,
+    color: '#757575'
+  },
+  splitInfoRowAmount:{
+    fontSize: 12,
+    color: '#303030',
+    fontWeight: '500'
+  }
 })

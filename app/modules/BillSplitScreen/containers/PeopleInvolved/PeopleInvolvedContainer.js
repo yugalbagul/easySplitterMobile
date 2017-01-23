@@ -231,6 +231,7 @@ class PeopleInvolvedContainer extends React.Component {
                 shadowOffset={{width:0, height:2}}
                 shadowOpacity={.7}
                 shadowColor="black"
+                onPress={this.addNewUser}
                 style={{
                   borderRadius: 2,
                   paddingHorizontal: 10,

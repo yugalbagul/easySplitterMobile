@@ -37,7 +37,7 @@ class BottomNavigation extends React.Component{
     const { width: screenWidth } = Dimensions.get('window');
     const { props: { currentRoute } } = this;
     const itemWidthClass = { width:(screenWidth / 5)};
-    if(currentRoute && currentRoute !== ROUTES.billSplitPage){
+    if(currentRoute && currentRoute !== ROUTES.billSplitPage && currentRoute !== ROUTES.dishSplitPage){
       return(
         <View style={styles.container}>
           {this.state.tabsArray.map((tabInfo) => {

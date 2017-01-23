@@ -2,7 +2,6 @@ import React from 'react'
 import { View, Text} from 'react-native';
 
 const AmountWithSymbol = (props) => {
-  console.log(props);
   return(
     <View style={{flexDirection: 'row'}}>
       <View style={props.currencyContainerStyle}>
