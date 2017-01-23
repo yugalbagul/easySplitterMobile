@@ -1,20 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, ListView, View, Text, TouchableNativeFeedback } from 'react-native';
+import { Modal, ScrollView, View, Text, TouchableNativeFeedback, InteractionManager } from 'react-native';
+import { MKRadioButton } from 'react-native-material-kit';
 import { setPaidByAction } from '../../../../actions/billsActions';
 import MultiplePaidByModal from '../../components/MultiplePaidByModal';
-import { styles } from './styles';
+import { styles, paidByModalStyle } from './styles';
 
 class PaidByContainer extends React.Component {
   constructor(){
     super();
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-    this.state = {
-      dataSource: ds
-    };
-
-    this.renderRow = this.renderRow.bind(this);
+    this.radioGroup = new MKRadioButton.Group();
     this.togglePaidByModal = this.togglePaidByModal.bind(this);
   }
 
@@ -25,25 +21,26 @@ class PaidByContainer extends React.Component {
     return true;
   }
 
-  onSelectPaidBy(rowData){
-    const { props: { setPaidByAction } } = this;
-    if(rowData.id === 'multiple'){
-      const paidByActionObject = {
-        paidBy: 'multiple',
-        multipleFlag: true,
-        togglePaidByModal: true,
-        toggleMultiplePaidByModal: true
+  onSelectPaidBy(checked,rowData){
+    InteractionManager.runAfterInteractions(() => {
+      const { props: { setPaidByAction } } = this;
+      if(checked){
+        if(rowData.id === 'multiple'){
+          const paidByActionObject = {
+            paidBy: 'multiple',
+            multipleFlag: true,
+            toggleMultiplePaidByModal: true
+          }
+          setPaidByAction(paidByActionObject);
+        } else {
+          const paidByActionObject = {
+            paidBy: rowData.id,
+            togglePaidByModal: true,
+          }
+          setPaidByAction(paidByActionObject);
+        }
       }
-      console.log('Setting Multiple Paid By');
-      setPaidByAction(paidByActionObject);
-    } else {
-      const paidByActionObject = {
-        paidBy: rowData.id,
-        togglePaidByModal: true,
-      }
-      setPaidByAction(paidByActionObject);
-    }
-
+    })
   }
 
   togglePaidByModal(){
@@ -54,13 +51,6 @@ class PaidByContainer extends React.Component {
     setPaidByAction(paidByActionObject);
   }
 
-  renderRow(rowData){
-    return(
-      <TouchableNativeFeedback style={styles.paidByModalListItem} onPress={this.onSelectPaidBy.bind(this, rowData)}>
-          <Text>{rowData.displayName}</Text>
-      </TouchableNativeFeedback>
-    )
-  }
 
   render(){
     const { props: { currentPeople, paidBy, showPaidByModal} } = this
@@ -75,6 +65,7 @@ class PaidByContainer extends React.Component {
     } else if (isPaidByMultiple) {
       paidByText = 'Multiple'
     }
+    const radioGroup = new MKRadioButton.Group();
     return(
       <View style={styles.container}>
         <View style={styles.triggerContainer}>
@@ -96,13 +87,27 @@ class PaidByContainer extends React.Component {
           visible={showPaidByModal}
           onRequestClose= {this.togglePaidByModal}
         >
-          <View style={styles.paidByModalContainer}>
-            <View style={styles.paidByModalInnerContainer}>
-              <ListView
-                dataSource={this.state.dataSource.cloneWithRows(peopleArray)}
-                renderRow={this.renderRow}
-                style={styles.paidByModalList}
-                />
+          <View style={paidByModalStyle.modalContainer}>
+            <View style={paidByModalStyle.modalInnerContainer}>
+              <View style={paidByModalStyle.headerContainer}>
+                <Text style={paidByModalStyle.headerTextStyle}>Select Paid By</Text>
+              </View>
+              <ScrollView
+                style={paidByModalStyle.listStyle}
+                >
+                {peopleArray.map((rowData) => {
+                  return (
+                    <View key={rowData.id} style={paidByModalStyle.itemContainer}>
+                      <View>
+                        <MKRadioButton checked={paidBy === rowData.id} onCheckedChange={(obj) => this.onSelectPaidBy(obj.checked, rowData)} group={radioGroup}/>
+                        </View>
+                      <View>
+                        <Text>{rowData.displayName}</Text>
+                      </View>
+                    </View>
+                  )
+                })}
+              </ScrollView>
             </View>
 
           </View>

@@ -8,6 +8,7 @@ import Icons from 'react-native-vector-icons/MaterialIcons';
 import { styles } from './styles';
 import BillBasicInfoContainer from './containers/BillBasicInfo/BillBasicInfoContainer';
 import { ROUTES } from '../../constants';
+import DishRecordRow from './components/DishRecordRow'
 import * as dishSplitActions from '../../actions/dishSplitActions';
 import createBillPersistRecord from '../../utils/createBillPersistRecord';
 import { persistBillRecordAction, cancelBillSplitAction  } from '../../actions/billsActions'
@@ -78,19 +79,15 @@ class BillSplitScene extends React.Component{
     }
   }
 
-  renderRow(rowData,sectionID,rowID) {
+  renderRow(rowData) {
     return (
-      <TouchableHighlight style={styles.item} onPress={this.onDishRecordPress.bind(this,rowData,rowID)}>
-        <View>
-          <Text>{rowData.dishName}</Text>
-          <Text>{rowData.pricePerItem}</Text>
-        </View>
-      </TouchableHighlight>
+      <DishRecordRow onDishRecordPress = {this.onDishRecordPress} rowData={rowData}/>
     )
   }
 
   onDishRecordPress(rowData){
-    const { dishSplitActions, billRecordID } = this.props;
+    const self = this;
+    const { dishSplitActions, billRecordID } = self.props;
     Actions[ROUTES.dishSplitPage]({
       dishID: rowData.dishID,
       dishData: rowData,
@@ -152,13 +149,13 @@ class BillSplitScene extends React.Component{
 
         </View>
 
-        {!this.state.loadingState && this.state.showDishSplits?
+        {!this.state.loadingState && this.state.showDishSplits ?
         <ListView
           dataSource={this.state.dataSource}
           renderRow={this.renderRow}
           style={styles.list}
         /> : null
-      }
+       }
 
     </View>
 

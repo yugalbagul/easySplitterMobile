@@ -17,6 +17,10 @@ export const styles  = StyleSheet.create({
     flex: 1,
     padding: 5
   },
+
+})
+
+export const dishRowStyles = StyleSheet.create({
   item : {
     flex:1,
     minHeight: 50,
@@ -29,15 +33,60 @@ export const styles  = StyleSheet.create({
 export const multiplePaidByModalStyles = StyleSheet.create({
   container:{
   },
-  remainingAmount:{
+  remainingAmountContainer:{
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  remainingAmountRow1Text:{
+    fontWeight: '500',
+    color: '#303030'
+  },
+  remainingAmountRow2Text:{
+    color: '#9E9E9E'
   },
   scrollView:{
-    borderTopWidth: StyleSheet.hairlineWidth
+    marginTop: 8
   },
-  personRow:{
+  personRowContainer:{
     flexDirection:'row',
-    justifyContent:'space-around',
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 5,
+
+  },
+  nameContainer: {
+    flex: 7,
+    alignSelf: 'flex-end',
+    padding: 8,
+
+  },
+  nameTextStyle:{
+    fontSize: 16,
+    color:'#303030'
+
+  },
+  amountContainer: {
+    flex: 2,
+    alignSelf:'flex-end',
+    flexDirection:'row',
+
+  },
+  currencyText:{
+    fontSize: 16,
+    color:'#303030',
+  },
+  amountTextInput:{
+
+  },
+})
+
+export const toolBarStyle = StyleSheet.create({
+  titleStyle:{
+    fontSize:18,
+    color: 'white',
+  },
+  actionStyle:{
+    color: '#2A628F',
+
   }
+
 })

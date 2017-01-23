@@ -26,26 +26,41 @@ export const styles = StyleSheet.create({
   triggerText:{
     color:'#353535',
     fontSize: 16
-  },
-  paidByModalContainer: {
+  }
+})
+
+export const paidByModalStyle = StyleSheet.create({
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems:'center',
-    padding: 20,
     backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
-  paidByModalInnerContainer: {
+  modalInnerContainer:{
     borderRadius: 10,
     alignItems: 'flex-start',
-    padding: 20,
     width: 300,
     minHeight: 300,
     backgroundColor: '#fff',
+  },
+  headerContainer: {
+    borderBottomWidth:1,
+    borderColor: 'grey',
+    alignSelf:'stretch',
+    paddingVertical: 5,
+    paddingLeft: 5
+  },
+  headerTextStyle:{
+    color:'#18435A',
 
   },
-  paidByModalList: {
+  listStyle:{
+    marginTop: 5
   },
-  paidByModalListItem:{
+  itemContainer:{
+    flexDirection: 'row'
+  },
+  listItem:{
     padding: 10,
-  },
+  }
 })
