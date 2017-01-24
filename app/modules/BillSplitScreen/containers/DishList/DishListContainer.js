@@ -104,7 +104,7 @@ class DishListContainer extends React.Component {
   }
 
   renderRow(rowData) {
-    const { props: { currentPeople } } = this
+    const { props: { currentPeople, billRecord } } = this
     const imageIconSource = getImageIconFromName(rowData);
 
     return(
@@ -163,58 +163,60 @@ class DishListContainer extends React.Component {
 
   render(){
     const { props: { billRecord, splitRecord } } = this
-    return(
-        <ScrollView style={styles.container}>
-          <TouchableNativeFeedback onPress={this.addNewItem}>
-            <View style={styles.addNewContainer}>
-              <View style={styles.rowItemImageOuterView}>
-                <View style={styles.rowItemImageContainer}>
-                <MaterialIcons size={24} name={'add'} style={styles.addNewItemImage}/>
+    if(!isEmpty(billRecord)){
+      return(
+          <ScrollView style={styles.container}>
+            <TouchableNativeFeedback onPress={this.addNewItem}>
+              <View style={styles.addNewContainer}>
+                <View style={styles.rowItemImageOuterView}>
+                  <View style={styles.rowItemImageContainer}>
+                  <MaterialIcons size={24} name={'add'} style={styles.addNewItemImage}/>
+                  </View>
+                </View>
+                <View style={styles.addNewItemTextContainer}>
+                    <Text style={styles.addNewItemText}>
+                      ADD ITEM
+                    </Text>
                 </View>
               </View>
-              <View style={styles.addNewItemTextContainer}>
-                  <Text style={styles.addNewItemText}>
-                    ADD ITEM
-                  </Text>
-              </View>
-            </View>
-          </TouchableNativeFeedback>
+            </TouchableNativeFeedback>
 
-        {!isEmpty(billRecord.dishes) && !isEmpty(splitRecord) ? <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow}
-          style={styles.listContainer}
-        /> : null}
+          {!isEmpty(billRecord.dishes) && !isEmpty(splitRecord) ? <ListView
+            dataSource={this.state.dataSource}
+            renderRow={this.renderRow}
+            style={styles.listContainer}
+          /> : null}
 
-      <View style={styles.saveButtonContainer}>
-        <MKButton
-          backgroundColor={'#2A628F'}
-          shadowRadius={2}
-          shadowOffset={{width:0, height:2}}
-          shadowOpacity={.7}
-          shadowColor="black"
-          onPress={this.saveBill}
-          style={{
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            paddingVertical:10,
-            marginTop: 16,
-            marginBottom: 16,
-            justifyContent: 'center',
-            alignItems: 'center'
+        <View style={styles.saveButtonContainer}>
+          <MKButton
+            backgroundColor={'#2A628F'}
+            shadowRadius={2}
+            shadowOffset={{width:0, height:2}}
+            shadowOpacity={.7}
+            shadowColor="black"
+            onPress={this.saveBill}
+            style={{
+              borderRadius: 5,
+              paddingHorizontal: 10,
+              paddingVertical:10,
+              marginTop: 16,
+              marginBottom: 16,
+              justifyContent: 'center',
+              alignItems: 'center'
 
-          }}
-          >
-          <Text pointerEvents="none"
-                style={{color: 'white', fontWeight: 'bold',}}>
-            SAVE BILL
-          </Text>
-        </MKButton>
-      </View>
-    </ScrollView>
-
-
-    )
+            }}
+            >
+            <Text pointerEvents="none"
+                  style={{color: 'white', fontWeight: 'bold',}}>
+              SAVE BILL
+            </Text>
+          </MKButton>
+        </View>
+      </ScrollView>
+      )
+    } else {
+      return null
+    }
   }
 }
 
