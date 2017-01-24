@@ -1,24 +1,16 @@
 const calculatorFunction = (type, ...args) => {
   switch (type) {
   case 'DISH_PRICE_CHANGE':{
-    const currentGrossPrice = args[0] * args[1]; // totalprice
-    const tempCurrentDishSplit = args[3];
-    const newBaseSplitAmount = currentGrossPrice / args[2]; // new base split count
+    const currentGrossPrice = args[0]; // totalprice
+    const tempCurrentDishSplit = args[2];
+    const newBaseSplitAmount = currentGrossPrice / args[1]; // new base split count
     tempCurrentDishSplit.map((userSplitInfo) => {
       userSplitInfo.dishAmount = parseFloat(userSplitInfo.splitPortion) * newBaseSplitAmount;
     })
-    if(args[4] === 'count'){
-      return{
-        currentDishSplit: tempCurrentDishSplit,
-        currentDishCount: args[0],
-        currentBaseSplitAmount: newBaseSplitAmount
-      }
-    } else {
-      return{
-        currentDishSplit: tempCurrentDishSplit,
-        currentPricePerItem: args[1],
-        currentBaseSplitAmount: newBaseSplitAmount
-      };
+    return{
+      currentDishSplit: tempCurrentDishSplit,
+      currentDishTotalPrice: args[0],
+      currentBaseSplitAmount: newBaseSplitAmount
     }
   }
   case 'USER_PORTION_CHANGED':
@@ -32,10 +24,9 @@ const calculatorFunction = (type, ...args) => {
   }
 }
 
-const userSelectionRemoved = ([ index, people, state ]) => {
+const userSelectionRemoved = ([ index, state ]) => {
   const tempCurrentDishSplit = state.currentDishSplit;
-  const { currentDishCount, currentPricePerItem } = state;
-
+  const { currentDishTotalPrice } = state;
   tempCurrentDishSplit[index].selected = false;
   // calculate new splits after removing this person
   let newTotalSplits = 0;
@@ -45,7 +36,7 @@ const userSelectionRemoved = ([ index, people, state ]) => {
     }
   });
 
-  const newBaseSplitAmount = (currentDishCount * currentPricePerItem) / newTotalSplits;
+  const newBaseSplitAmount = (parseFloat(currentDishTotalPrice)) / newTotalSplits;
 
   tempCurrentDishSplit.map((userSplitInfo) => {
     if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
@@ -66,7 +57,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
   const personInfo = people[index];
   const userSplitPresent = tempCurrentDishSplit.findIndex((record) => record.id === personInfo.id);
   if(userSplitPresent !== -1){
-    const { currentDishCount, currentPricePerItem } = state;
+    const { currentDishTotalPrice } = state;
 
     tempCurrentDishSplit[index].selected = true;
     tempCurrentDishSplit[index].splitPortion = '1';
@@ -77,7 +68,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
         newTotalSplits = newTotalSplits + parseFloat(userSplitInfo.splitPortion);
       }
     });
-    const newBaseSplitAmount = (currentDishCount * currentPricePerItem) / newTotalSplits;
+    const newBaseSplitAmount = (parseFloat(currentDishTotalPrice)) / newTotalSplits;
 
     tempCurrentDishSplit.map((userSplitInfo) => {
       if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
@@ -108,7 +99,7 @@ const userSelectionAdded = ([ index, people, state ]) => {
 }
 
 const userPortionChanged = ([ newInputText, index, state ]) => {
-  const { currentTotalSplits, currentPricePerItem, currentDishCount } =  state;
+  const { currentTotalSplits, currentDishTotalPrice} =  state;
   const newInputFloat = newInputText ? parseFloat(newInputText) : 0;
   const tempCurrentDishSplit = state.currentDishSplit;
   const tempUserSplitRecord = tempCurrentDishSplit[index];
@@ -121,7 +112,7 @@ const userPortionChanged = ([ newInputText, index, state ]) => {
   // calculate renewed total splits of the dish into people
   const newTotalSplits = currentTotalSplits + (newInputFloat - previousValue); // new split count
 
-  const newBaseSplitAmount = (currentPricePerItem * currentDishCount) / newTotalSplits; // new base split count
+  const newBaseSplitAmount = (parseFloat(currentDishTotalPrice)) / newTotalSplits; // new base split count
 
   tempUserSplitRecord.splitPortion = newInputFloat;
   tempCurrentDishSplit[index] = tempUserSplitRecord;

@@ -260,7 +260,7 @@ class PeopleInvolvedContainer extends React.Component {
                   <View>
                     <MKCheckbox
                       checked={personInfo.selected}
-                      onCheckedChange={(obj) => { console.log(obj); this.onUserSelected(obj.checked, index)}}
+                      onCheckedChange={(obj) => { this.onUserSelected(obj.checked, index)}}
                     />
                   </View>
                   <View style={{paddingTop: 8}}>

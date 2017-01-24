@@ -53,19 +53,13 @@ const newSplitRecord = {
 const saveDishInfo = (state, action) => {
   const { dishInfo } = action;
   const billRecord = state.get('billRecord');
-  const currentBillAmount = parseFloat(state.get('currentBillAmount'));
   if(billRecord){
     const newBillRecord = billRecord.toJS();
     const newDishesArray = newBillRecord.dishes;
     const dishIndex = newDishesArray.findIndex((dish) => dish.dishID === dishInfo.dishID);
-    const newDishAmount = dishInfo.count * dishInfo.pricePerItem;
     if(dishIndex !== -1){
-      const previousDishAmount = newDishesArray[dishIndex].count * newDishesArray[dishIndex].pricePerItem;
-      const deltaDishAmount = newDishAmount - previousDishAmount;
-      newBillRecord.totalBillAmount = currentBillAmount + deltaDishAmount;
       newDishesArray[dishIndex] = dishInfo;
     } else {
-      newBillRecord.totalBillAmount = currentBillAmount;
       newDishesArray.push(dishInfo);
     }
     newBillRecord.dishes = newDishesArray;
@@ -127,9 +121,10 @@ export default (state = initialState , action) => {
   case SAVE_DISH_SPLIT:{
     const dishInfo = saveDishInfo(state,action);
     const dishSplitInfo = saveDishSplit(state.get('splitRecord'), action);
+    console.log(dishInfo);
+    console.log(dishSplitInfo);
     let newState = state.set('billRecord', fromJS(dishInfo));
     newState = newState.set('splitRecord', fromJS(dishSplitInfo));
-    newState = newState.set('currentBillAmount', dishInfo.totalBillAmount.toString());
     return newState;
   }
 

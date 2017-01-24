@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, Text, TextInput, ScrollView, TouchableOpacity  } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, TextInput, ScrollView, Image  } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { isEmpty } from 'lodash';
 import CheckBox from 'react-native-checkbox';
-import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux'
+import { MKTextField, MKCheckbox } from 'react-native-material-kit'
 import { ROUTES } from '../../constants';
+import AmountWithSymbol from '../../components/AmountWithSymbol'
 import dishSplitCalculator from '../../utils/dishSplitCalculator';
+import { toolBarStyle, styles } from './styles';
 
-class DishSplitScene extends React.Component {
+export default class DishSplitScene extends React.Component {
   constructor(){
     super();
     this.onUserPortionChange = this.onUserPortionChange.bind(this);
@@ -25,7 +27,7 @@ class DishSplitScene extends React.Component {
         currentBaseSplitAmount: 0,
         currentTotalSplits: 0,
         currentDishSplit: [],
-        currentPricePerItem: '',
+        currentDishTotalPrice: '',
         currentDishCount: '',
         currentDishName: '',
         editName: true,
@@ -46,7 +48,7 @@ class DishSplitScene extends React.Component {
         currentBaseSplitAmount: baseSplitAmount,
         currentTotalSplits: totalSplits,
         currentDishSplit: tempCurrentDishSplit,
-        currentPricePerItem: dishData.pricePerItem,
+        currentDishTotalPrice: dishData.dishTotalPrice,
         currentDishCount: dishData.count,
         currentDishName: dishData.dishName,
       })
@@ -56,7 +58,7 @@ class DishSplitScene extends React.Component {
         currentBaseSplitAmount: 0,
         currentTotalSplits: 0,
         currentDishSplit: [],
-        currentPricePerItem: dishData.pricePerItem,
+        currentDishTotalPrice: dishData.dishTotalPrice,
         currentDishCount: dishData.count,
         currentDishName: dishData.dishName,
       })
@@ -68,12 +70,12 @@ class DishSplitScene extends React.Component {
     const {
       currentDishCount,
       currentDishName,
-      currentPricePerItem,
+      currentDishTotalPrice,
       currentBaseSplitAmount,
       currentTotalSplits,
       currentDishSplit
     } = this.state;
-    if(currentDishCount && currentDishName && currentPricePerItem){
+    if(currentDishName && currentDishTotalPrice){
       const { newItem,dishID, billData } = this.props;
       const typeConvertedDishSplit = [];
       // convert strings to floats for each user reacord
@@ -97,7 +99,7 @@ class DishSplitScene extends React.Component {
         dishID: tempDishId,
         count: currentDishCount,
         dishName: currentDishName,
-        pricePerItem:  currentPricePerItem,
+        dishTotalPrice:  currentDishTotalPrice,
       };
       const newDishSplitInfo = {
         dishID: tempDishId,
@@ -112,53 +114,45 @@ class DishSplitScene extends React.Component {
 
   }
 
-  onPersonSelectToggle(checked, index){
+  onPersonSelectToggle(checked, id){
     const { people } = this.props;
-    if(!checked){
+    const index = this.state.currentDishSplit.findIndex((item) => item.id == id);
+    if(checked){
       const newState = Object.assign({}, this.state,
         dishSplitCalculator('USER_SELECTION_ADDED', index, people, this.state));
       this.setState(newState);
     } else {
       const newState = Object.assign({}, this.state,
-        dishSplitCalculator('USER_SELECTION_REMOVED', index, people, this.state));
+        dishSplitCalculator('USER_SELECTION_REMOVED', index, this.state));
       this.setState(newState);
     }
 
   }
 
-  setNewDishPrice(event, attribute){
+  setNewDishPrice(event){
     const newText = event.nativeEvent.text;
     const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(newText);
-    const { currentDishCount, currentPricePerItem } = this.state;
-    if((!newText && attribute === 'count')){
+    if(newText && isNumber){
+      this.updateOnDishPriceChange(newText);
+    } else if(newText === ''){
       this.setState({
-        currentDishCount: newText
+        currentDishTotalPrice: newText,
       });
-    } else if(!newText && attribute === 'pricePerItem'){
-      this.setState({
-        currentPricePerItem: newText,
-      });
-    } else if(newText && isNumber && attribute === 'count'){
-      this.updateOnDishPriceChange(newText,currentPricePerItem, attribute);
-    } else if(newText && isNumber && attribute === 'pricePerItem'){
-      this.updateOnDishPriceChange(currentDishCount, newText, attribute);
     }
-
   }
 
-  updateOnDishPriceChange(dishCount, pricePerItem, attribute){
+  updateOnDishPriceChange(dishTotalPrice){
     const { currentTotalSplits, currentDishSplit } = this.state;
     // TODO: send current state rather than passing only required attributes,
     // will make the function usage uniform
-    const newState = Object.assign({}, this.state, dishSplitCalculator('DISH_PRICE_CHANGE', dishCount, pricePerItem, currentTotalSplits, currentDishSplit, attribute))
+    const newState = Object.assign({}, this.state, dishSplitCalculator('DISH_PRICE_CHANGE', dishTotalPrice, currentTotalSplits, currentDishSplit))
     this.setState(newState);
   }
 
-  onUserPortionChange(event, index){
+  onUserPortionChange(event, id){
     let newInputText = event.nativeEvent.text;
-    const tempCurrentDishSplit = this.state.currentDishSplit;
     const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(newInputText);
-    const tempUserSplitRecord = tempCurrentDishSplit[index];
+    const index = this.state.currentDishSplit.findIndex((item) => item.id == id);
     if(isNumber){
       // code to recalculate the current base split and currentTotalSplits
       const newState = Object.assign({}, this.state, dishSplitCalculator('USER_PORTION_CHANGED', newInputText, index, this.state));
@@ -171,136 +165,154 @@ class DishSplitScene extends React.Component {
 
   render() {
     const { people } = this.props;
-    const { currentPricePerItem ,currentDishCount, editName, currentDishName } = this.state;
-    const totalDishAmount = !currentDishCount || !currentPricePerItem ? '' : (currentPricePerItem * currentDishCount);
-    const disableSplitSection = totalDishAmount ? false : true;
+    const { currentDishTotalPrice, currentDishName } = this.state;
+    const disableSplitSection = currentDishTotalPrice ? false : true;
     return(
         <View style={styles.container}>
-
-          <View style={styles.dishInfo}>
-
-            <View style={styles.dishInfoDishName}>
-              <View style={{
-                flexDirection: 'row'
-              }}>
-                <Icon name={'rocket'} size={15} color="#900" style={styles.dishNameIcon} />
-                {editName ?
-                  <View style={{flexDirection: 'row'}}>
-                    <TextInput
-                        value={currentDishName}
-                        onChange= {(event) => {this.setState({currentDishName: event.nativeEvent.text})}}
-                        style={{width:200, height: 40, marginBottom: 5}}
-                    />
-                  <TouchableOpacity onPress={()=>{this.setState({editName: !this.state.editName})}}>
-                    <Icon name={'thumbs-up'} size={15} color="grey"  style={styles.dishNameIcon} />
-                  </TouchableOpacity>
-                  </View> :
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={styles.dishName}>{currentDishName}</Text>
-                      <TouchableOpacity onPress={()=>{this.setState({editName: !this.state.editName})}}>
-                        <Icon name={'pencil'} size={15} color="grey"  style={styles.dishNameIcon} />
-                      </TouchableOpacity>
+          <MaterialIcons.ToolbarAndroid
+            style= {{
+              backgroundColor: '#18435A',
+              height: 56,
+              elevation: 10,
+            }}
+            navIconName= 'arrow-back'
+            iconColor= 'white'
+            actions={[
+              {
+                title:'Done',
+                iconName: 'done',
+                iconColor: 'white',
+                show: 'always'
+              }
+            ]}
+            onActionSelected={this.saveDishSplit}
+            onIconClicked={this.onRequestCloseHandler}
+          >
+          <View style={toolBarStyle.toolBarContainer}>
+              <Text style={toolBarStyle.titleStyle}>
+                Add Item
+              </Text>
+          </View>
+        </MaterialIcons.ToolbarAndroid>
+          <View style={styles.dishInfoContainer}>
+            <View style={styles.dishNameContainer}>
+                <View style={styles.dishImageOuterContainer}>
+                  <View style={styles.dishImageInnerContainer}>
+                    <Image source={require('../../../assets/food_icons/default.png')} style={styles.dishImage}/>
                   </View>
-                }
-              </View>
-
-              <View style={{
-                alignSelf:'flex-end'
-              }}>
-                <TouchableOpacity onPress={this.saveDishSplit}>
-                  <Text>Save</Text>
-                </TouchableOpacity>
-              </View>
+                </View>
+                <View style={styles.dishNameInputCotainer}>
+                  <MKTextField
+                    autoCorrect={false}
+                    value={currentDishName}
+                    onChange= {(event) => {this.setState({currentDishName: event.nativeEvent.text})}}
+                    style={{flex:1}}
+                    highlightColor={'#159688'}
+                    textInputStyle={{ color: '#276191'}}
+                    />
+                </View>
             </View>
 
-            <View style={styles.dishInfoDishAmount}>
-              <Text>Total Amount: </Text>
-              <View style={styles.dishAmountInputContainer}>
-                <TextInput
-                  keyboardType={'numeric'}
-                  value={currentDishCount.toString()}
-                  onChange={(event) => {
-                    this.setNewDishPrice(event, 'count')
-                  }}
-                  style={{width:50, height: 40, marginBottom: 5}}
-                />
-              <Text>X</Text>
-                <TextInput
-                  keyboardType={'numeric'}
-                  value={currentPricePerItem.toString()}
-                  onChange={(event) => {
-                    this.setNewDishPrice(event, 'pricePerItem')
-                  }}
-                  style={{width:50, height: 40, marginBottom: 5}}
-                />
+            <View style={styles.dishPriceContianer}>
+              <View style={styles.amountIconContainer}>
+                <Text style={styles.amountIconStyle}> {'\u20B9'}</Text>
               </View>
-              <Text> = </Text>
-              <Text>{totalDishAmount ? totalDishAmount : '-'}</Text>
+              <View style={styles.amountInputContainer}>
+                <MKTextField
+                  autoCorrect={false}
+                  value={currentDishTotalPrice.toString()}
+                  onChange={(event) => {
+                    this.setNewDishPrice(event)
+                  }}
+                  style={{flex:1}}
+                  highlightColor={'#159688'}
+                  textInputStyle={{ color: '#276191'}}
+                  />
+              </View>
             </View>
           </View>
 
 
-          <View style={styles.dishSplit}>
-            <Text> Split Between : </Text>
-          <ScrollView contentContainerStyle={styles.dishSplitScroll}>
+          <View style={styles.dishSplitInfoContainer}>
+            <View style={styles.separatorTextContainer}>
+              <Text style={styles.separatorText}> Split Between </Text>
+            </View>
+
+            <View style={[styles.dishSplitPersonContainer, styles.columnLabelsContainer]}>
+              <View style={styles.nameCheckBxContainer}>
+              </View>
+              <View style={styles.personShareContainer}>
+                <Text style={styles.columnLabelsStyle}>Share</Text>
+              </View>
+              <View style={styles.personDishAmountContainer}>
+                <Text style={styles.columnLabelsStyle}>Cost</Text>
+              </View>
+            </View>
+
+          <ScrollView contentContainerStyle={styles.dishSplitScrollView}>
             {
-              people.map((personInfo, index) => {
+              people.map((personInfo) => {
                 const personSplitInfo = this.state.currentDishSplit.find((item) => item.id == personInfo.id);
-                if(personSplitInfo){
-                  return (  <View style={styles.dishSplitPerson} key={personInfo.id}>
-                  <CheckBox
-                    checked={personSplitInfo.selected}
-                    label={personInfo.displayName}
-                    onChange={(checked) => {if(!disableSplitSection){
-                      this.onPersonSelectToggle(checked, index)}}}
-                  />
-                   <TextInput
-                      keyboardType={'numeric'}
-                      value={personSplitInfo.splitPortion.toString()}
-                      onChange={(event) => {this.onUserPortionChange(event, index )}}
-                      style={{width:50, height: 40, marginBottom: 5}}
-                      editable={!disableSplitSection}
-                    />
-
-                   <Text>
-                    {personSplitInfo.dishAmount}
-                   </Text>
-                 </View>)
-                } else {
-                  return (
-                    <View style={styles.dishSplitPerson} key={personInfo.id}>
-                    <CheckBox
-                      checked={ personSplitInfo && personSplitInfo.selected ? personSplitInfo.selected : false}
-                      label={personInfo.displayName}
-                      onChange={(checked) => {if(!disableSplitSection){
-                        this.onPersonSelectToggle(checked, index)}}}
-                    />
-                     <TextInput
-                        keyboardType={'numeric'}
-                        value={''}
-                        editable= {false}
-                        style={{width:50, height: 40, marginBottom: 5}}
-                      />
-
-                     <Text>
-                      -
-                     </Text>
-                   </View>
-                  )
+                const amountTextColorStyle = {};
+                if(personSplitInfo && personSplitInfo.dishAmount){
+                  amountTextColorStyle.color = '#276191'
                 }
 
+                return (
+                <View style={styles.dishSplitPersonContainer} key={personInfo.id}>
+                  <View style={styles.nameCheckBxContainer}>
+                  <View style={styles.checkBoxContainer}>
+                    <MKCheckbox
+                      checked={personSplitInfo && personSplitInfo.selected ? personSplitInfo.selected : false}
+                      editable={!disableSplitSection}
+                      onCheckedChange={(obj) => {
+                        if(!disableSplitSection){
+                          this.onPersonSelectToggle(obj.checked, personSplitInfo.id)
+                        }
+                      }}
+                      fillColor={'#008C7D'}
+                      borderOnColor={'#008C7D'}
+                    />
+                  </View>
+
+                  <View style={styles.personNameContainer}>
+                     <Text style={styles.personNameText}>
+                       {personInfo.displayName}
+                     </Text>
+                  </View>
+                </View>
+                  <View style={styles.personShareContainer}>
+                    <MKTextField
+                       keyboardType={'numeric'}
+                       value={personSplitInfo.splitPortion.toString()}
+                       onChange={(event) => {this.onUserPortionChange(event, personSplitInfo.id )}}
+                       style={{width:40}}
+                       editable={!disableSplitSection && personSplitInfo && personSplitInfo.selected}
+                       highlightColor={'#159688'}
+                       textInputStyle={{ color: '#276191', textAlign: 'right'}}
+                     />
+                  </View>
+
+                  <View style={styles.personDishAmountContainer}>
+                    <AmountWithSymbol amount={personSplitInfo.dishAmount}
+                      currencyContainerStyle={{paddingRight: 4}}
+                      amountTextStyle ={[styles.personDishAmountText, amountTextColorStyle]}
+                      currencySymbolStyle = {[styles.personDishAmountText , amountTextColorStyle]}
+                      />
+                  </View>
+
+               </View>
+                )
               })
           }
           </ScrollView>
         </View>
-
         </View>
-
     )
   }
 }
 
-export default connect(null,null)(DishSplitScene);
+
 
 DishSplitScene.propTypes = {
   billData: React.PropTypes.object,
@@ -311,54 +323,3 @@ DishSplitScene.propTypes = {
   newItem: React.PropTypes.bool,
   navigator: React.PropTypes.object,
 }
-
-const styles  = StyleSheet.create({
-  container : {
-    flex: 1,
-    padding: 10,
-  },
-  dishInfo : {
-    minHeight: 50,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'black',
-    flexDirection: 'column',
-    paddingVertical: 10
-  },
-  dishInfoDishName:{
-    flexDirection: 'row',
-    justifyContent:'space-between',
-    paddingBottom: 5,
-    paddingHorizontal: 10,
-    backgroundColor:'whitesmoke'
-  },
-  dishInfoDishAmount : {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  dishAmountInputContainer: {
-    flexDirection : 'row',
-  },
-  dishSplit: {
-    paddingVertical: 10
-  },
-  dishSplitScroll: {
-    borderTopWidth : StyleSheet.hairlineWidth,
-    marginTop: 10,
-  },
-  dishNameIcon :{
-    top: 5,
-    marginRight: 5,
-  },
-  dishName: {
-    fontFamily: 'Roboto',
-    fontSize: 20,
-  },
-  // split section styles
-  dishSplitPerson: {
-    flexDirection:'row',
-    justifyContent:'space-around',
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-
-})

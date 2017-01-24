@@ -106,7 +106,6 @@ class DishListContainer extends React.Component {
   renderRow(rowData) {
     const { props: { currentPeople } } = this
     const imageIconSource = getImageIconFromName(rowData);
-    const dishAmountString = parseFloat(rowData.pricePerItem) * parseFloat(rowData.count)
 
     return(
       <TouchableNativeFeedback onPress={this.onDishRecordPress.bind(this, rowData)}>
@@ -124,7 +123,7 @@ class DishListContainer extends React.Component {
                 </Text>
               </View>
               <View style={dishInfoStyle.amountContainer}>
-                <AmountWithSymbol amount={dishAmountString}
+                <AmountWithSymbol amount={rowData.dishTotalPrice}
                   currencyContainerStyle={{paddingRight: 3}}
                   amountTextStyle ={dishInfoStyle.amountTextStyle}
                   currencySymbolStyle = {dishInfoStyle.amountTextStyle}
