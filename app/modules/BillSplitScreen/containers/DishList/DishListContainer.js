@@ -4,13 +4,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { isEmpty } from 'lodash';
 import { Actions } from 'react-native-router-flux';
-import { MKButton } from 'react-native-material-kit'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AmountWithSymbol from '../../../../components/AmountWithSymbol';
 import { ROUTES } from '../../../../constants';
-import createBillPersistRecord from '../../../../utils/createBillPersistRecord';
+import SaveButton  from '../SaveButton/SaveButton'
 import * as dishSplitActions from '../../../../actions/dishSplitActions';
-import { persistBillRecordAction  } from '../../../../actions/billsActions'
 import { styles, dishInfoStyle } from './styles';
 import { getImageIconFromName } from '../../../../utils/getImageIconFromName'
 
@@ -26,7 +24,6 @@ class DishListContainer extends React.Component {
     }
     this.renderRow = this.renderRow.bind(this);
     this.addNewItem = this.addNewItem.bind(this);
-    this.saveBill = this.saveBill.bind(this);
   }
 
   componentWillMount(){
@@ -97,14 +94,10 @@ class DishListContainer extends React.Component {
 
   }
 
-  saveBill(){
-    // call util function which creats records to save to database from the props
-    const actionParams = createBillPersistRecord(this.props);
-    this.props.persistBillRecordAction(actionParams);
-  }
+
 
   renderRow(rowData) {
-    const { props: { currentPeople, billRecord } } = this
+    const { props: { currentPeople } } = this
     const imageIconSource = getImageIconFromName(rowData);
 
     return(
@@ -187,31 +180,7 @@ class DishListContainer extends React.Component {
             style={styles.listContainer}
           /> : null}
 
-        <View style={styles.saveButtonContainer}>
-          <MKButton
-            backgroundColor={'#2A628F'}
-            shadowRadius={2}
-            shadowOffset={{width:0, height:2}}
-            shadowOpacity={.7}
-            shadowColor="black"
-            onPress={this.saveBill}
-            style={{
-              borderRadius: 5,
-              paddingHorizontal: 10,
-              paddingVertical:10,
-              marginTop: 16,
-              marginBottom: 16,
-              justifyContent: 'center',
-              alignItems: 'center'
-
-            }}
-            >
-            <Text pointerEvents="none"
-                  style={{color: 'white', fontWeight: 'bold',}}>
-              SAVE BILL
-            </Text>
-          </MKButton>
-        </View>
+        <SaveButton />
       </ScrollView>
       )
     } else {
@@ -239,7 +208,7 @@ const matchStateToProps = state => {
 
 const matchDispatchToProps = dispatch => {
   return {
-    persistBillRecordAction: bindActionCreators(persistBillRecordAction, dispatch),
+
     dishSplitActions: bindActionCreators(dishSplitActions,dispatch),
   }
 }

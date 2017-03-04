@@ -46,7 +46,7 @@ const newBillRecord = {
 
 const newSplitRecord = {
   totalAmountSplit: 0,
-  dishSplitMap: {}
+  dishSplitMap: []
 }
 
 
@@ -121,8 +121,6 @@ export default (state = initialState , action) => {
   case SAVE_DISH_SPLIT:{
     const dishInfo = saveDishInfo(state,action);
     const dishSplitInfo = saveDishSplit(state.get('splitRecord'), action);
-    console.log(dishInfo);
-    console.log(dishSplitInfo);
     let newState = state.set('billRecord', fromJS(dishInfo));
     newState = newState.set('splitRecord', fromJS(dishSplitInfo));
     return newState;
@@ -173,7 +171,6 @@ export default (state = initialState , action) => {
       if(action.paidBy === 'multiple'){
         // 'Multiple' was clicked on small paid by modal
         newState = newState.set('paidBy', action.paidBy);
-        console.log('setting multiple paid by in reducer');
         newState = newState.set('showMultiplePaidByModal', true);
       }
       return newState;

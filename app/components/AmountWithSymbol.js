@@ -19,8 +19,16 @@ const AmountWithSymbol = (props) => {
 AmountWithSymbol.propTypes = {
   currencyContainerStyle: React.PropTypes.number,
   amountContainerStyle: React.PropTypes.number,
-  currencySymbolStyle: React.PropTypes.number,
-  amountTextStyle: React.PropTypes.nummber,
+  currencySymbolStyle: React.PropTypes.oneOfType([
+    React.PropTypes.number,
+    React.PropTypes.array,
+    React.PropTypes.func,
+  ]),
+  amountTextStyle: React.PropTypes.oneOfType([
+    React.PropTypes.number,
+    React.PropTypes.array,
+    React.PropTypes.func,
+  ]),
   amount: React.PropTypes.string.isRequired,
 }
 

@@ -1,15 +1,16 @@
 import React from 'react';
-import { View, ListView, Text, TouchableNativeFeedback,
-  TouchableOpacity, ActivityIndicator,Image,
+import { View, ListView, Text, TouchableNativeFeedback, ActivityIndicator,Image,
   StatusBar, ToolbarAndroid, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { isEqual } from 'lodash';
+import { isEqual, isEmpty } from 'lodash';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import { Actions } from 'react-native-router-flux'
+import AmountWithSymbol from '../../components/AmountWithSymbol';
 import { ROUTES } from '../../constants';
 import { DateComponent } from '../../components/DateComponent'
-import { styles, billCardStyle } from './styles';
+import { styles, billCardStyle, hztlGraphStyle } from './styles';
 import { addNewBillAction, setBillForEdit, getUserBillsAction, getUserFriendsAction } from '../../actions/billsActions'
 
 const calculatePendingBarWidth = () => {
@@ -26,11 +27,42 @@ const calculatePendingBarWidth = () => {
   }
 }
 
+const monthsArray = [ 'January', 'February','March','April','May','June','July','August','September','October','November','December']
+
+const processBillDate = (date) => {
+
+  const billDate = new Date(date);
+  const year = billDate.getFullYear();
+  const monthIndex = billDate.getMonth();
+  const month = monthsArray[monthIndex];
+  return `${month} ${year}`;
+
+}
+
+const processRecordsForSections = (records) => {
+  const sectionedData = {};
+  const sortedSectionHeaderArray = []
+  if(records && !isEmpty(records)){
+    Object.keys(records).map((key) => {
+      const value = records[key];
+      const sectionName = processBillDate(value.billDate, sortedSectionHeaderArray);
+      if(sectionedData[sectionName]){
+        sectionedData[sectionName].push(value)
+      } else {
+        sectionedData[sectionName] = [];
+        sectionedData[sectionName].push(value)
+      }
+    })
+  }
+  return sectionedData;
+}
+
 class HomeScene extends React.Component {
   constructor(){
     super()
     const ds = new ListView.DataSource ({
       rowHasChanged : (r1,r2) => r1 != r2, // TODO: need deep equals function here
+      sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     })
     this.state = {
       dataSource: ds,
@@ -41,9 +73,10 @@ class HomeScene extends React.Component {
 
   componentWillMount(){
 
-    if(this.props.billRecords){
+    if(this.props.billRecords && !isEmpty(this.props.billRecords)){
+      const listData = processRecordsForSections(this.props.billRecords);
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(this.props.billRecords)
+        dataSource: this.state.dataSource.cloneWithRowsAndSections(listData)
       })
     }
   }
@@ -58,8 +91,9 @@ class HomeScene extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if( !isEqual(nextProps.billRecords,this.props.billRecords)){
+      const listData = processRecordsForSections(nextProps.billRecords);
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(nextProps.billRecords)
+        dataSource: this.state.dataSource.cloneWithRowsAndSections(listData)
       })
     }
   }
@@ -84,6 +118,12 @@ class HomeScene extends React.Component {
     })
     this.props.setBillForEdit(rowData, splitRecord, billUsers, userRecords);
     Actions[ROUTES.billSplitPage]()
+  }
+
+  renderSectionHeader(sectionData, category) {
+    return (
+      <Text style={styles.sectionHeader}>{category}</Text>
+    )
   }
 
   renderRow(rowData) {
@@ -178,20 +218,34 @@ class HomeScene extends React.Component {
               locations={[0,0.1,1]}
             >
               <View style={styles.userThumbnailContainer}>
-                <Image source={{uri: currentUser.photoURL}} style={styles.userThumbnail}/>
-                <Text style={{ color: 'white', paddingLeft: 5 }}>Total Balance</Text>
+                {currentUser.photoURL ?
+                  <Image source={{uri: currentUser.photoURL}} style={styles.userThumbnail}/> :
+                    <View style={[styles.userThumbnail, styles.defaultUserThumbnail]}>
+                        <MaterialIcons name={'person'} size={32}/>
+                    </View>
+               }
+
               </View>
-              <View style={styles.personPendingAmount}>
-                <Text style={{color: '#FFE700'}}> {'Rs.1000'} </Text>
+              <View style={styles.pendingAmountContainer}>
+                <View>
+                  <Text style={styles.pendingAmountUpperText}>you get back</Text>
+                </View>
+                <View style={{alignItems:'flex-end'}}>
+                  <AmountWithSymbol amountTextStyle={styles.pendingAmount} currencySymbolStyle={[styles.pendingAmount, { marginRight: 4 }]} amount={'1000'}/>
+
+                </View>
+
               </View>
             </LinearGradient>
 
             <View style={styles.currentUserPendingBar}>
-              <View style={{ backgroundColor: '#E76060', paddingVertical: 5,width: pendingBarWidths.oweWidth, alignItems:'center' }}>
-                <Text  style={{ color: 'white'}}> {'Rs.230'}</Text>
+              <View style={[hztlGraphStyle.hztlContainer , { backgroundColor: '#E76060',width: pendingBarWidths.oweWidth}]}>
+                <Text style={hztlGraphStyle.upperText}>you owe</Text>
+                <AmountWithSymbol amountTextStyle={hztlGraphStyle.amount} currencySymbolStyle={[hztlGraphStyle.amount, { marginRight: 4 }]} amount={'230'}/>
               </View>
-              <View style={{ backgroundColor: '#32AA9F', paddingVertical: 5, width: pendingBarWidths.getBackWidth, alignItems:'center' }}>
-                <Text style={{ color: 'white'}}>{'Rs.1230'} </Text>
+              <View style={[hztlGraphStyle.hztlContainer ,{ backgroundColor: '#32AA9F', width: pendingBarWidths.getBackWidth}]}>
+                <Text style={hztlGraphStyle.upperText}>you get back</Text>
+                <AmountWithSymbol amountTextStyle={hztlGraphStyle.amount} currencySymbolStyle={[hztlGraphStyle.amount, { marginRight: 4 }]} amount={'1230'}/>
               </View>
             </View>
 
@@ -199,6 +253,7 @@ class HomeScene extends React.Component {
               dataSource={this.state.dataSource}
               renderRow={this.renderRow}
               style={styles.list}
+              renderSectionHeader={this.renderSectionHeader}
             />
           </View>
         }

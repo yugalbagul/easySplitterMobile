@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 
 const createBillPersistRecord = (data) => {
-  const { billRecord, splitRecord, currentBillName, currentBillAmount, currentPeople, currentUser, paidBy, newBill, multiplePaideByRecord } = data;
+  const { billRecord, splitRecord, currentBillDate, currentBillName, currentBillAmount, currentPeople, currentUser, paidBy, newBill, multiplePaideByRecord } = data;
   const billPeople = [];
   currentPeople.map(item => {
     billPeople.push({ id: item.id });
@@ -11,7 +11,7 @@ const createBillPersistRecord = (data) => {
     totalBillAmount: parseFloat(currentBillAmount),
     people: billPeople,
     paidBy: paidBy,
-    billDate: this.state.billDate.toString()
+    billDate: currentBillDate.toString()
   }
   const amountPerPerson = {};
   splitRecord.dishSplitMap.map((dishSplitRecord) => {

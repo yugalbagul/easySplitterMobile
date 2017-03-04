@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { Modal, ListView, View, Text,ScrollView, TouchableNativeFeedback, InteractionManager, TextInput } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { MKTextField } from 'react-native-material-kit';
-import CheckBox from 'react-native-checkbox';
 import { setPaidByAction } from '../../../actions/billsActions';
 import { isEmpty, isEqual } from 'lodash';
 import { multiplePaidByModalStyles as styles, toolBarStyle } from '../styles';
@@ -94,12 +93,10 @@ class MultiplePaidByModal extends React.Component {
     let newInputText = event.nativeEvent.text;
     const isNumber = /^\d+(?:\.)?(?:\d+)?$/.test(newInputText);
     if(isNumber || newInputText === ''){
-      console.log(newInputText);
       const previousAmount = this.state.payersArray[index].amountPaid ? parseFloat(this.state.payersArray[index].amountPaid) : 0;
       const deltaChange = (newInputText?parseFloat(newInputText):0) - previousAmount
       const tempPayersArray = this.state.payersArray;
       tempPayersArray[index].amountPaid = newInputText;
-      console.log(tempPayersArray);
       this.setState({
         payersArray: tempPayersArray,
         paidAmountCovered: this.state.paidAmountCovered + deltaChange

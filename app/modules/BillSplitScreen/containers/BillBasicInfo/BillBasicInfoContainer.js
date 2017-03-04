@@ -116,7 +116,10 @@ BillBasicInfoContainer.propTypes = {
   onBillAmountChangeAction: React.PropTypes.func,
   onBillDateChangeAction: React.PropTypes.func,
   currentBillName: React.PropTypes.string,
-  currentBillAmount: React.PropTypes.number,
+  currentBillAmount: React.PropTypes.oneOfType([
+    React.PropTypes.number,
+    React.PropTypes.string
+  ]) ,
   billRecordID: React.PropTypes.string,
   currentBillDate: React.PropTypes.instanceOf(Date)
 }

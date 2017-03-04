@@ -36,11 +36,13 @@ class BottomNavigation extends React.Component{
   render(){
     const { width: screenWidth } = Dimensions.get('window');
     const { props: { currentRoute } } = this;
+    const { tabsArray } = this.state
     const itemWidthClass = { width:(screenWidth / 5)};
-    if(currentRoute && currentRoute !== ROUTES.billSplitPage && currentRoute !== ROUTES.dishSplitPage){
+    const doesRouteHaveFooterMenu = currentRoute && tabsArray.some((item) => item.routeName === currentRoute)
+    if(doesRouteHaveFooterMenu && currentRoute !== ROUTES.billSplitPage && currentRoute !== ROUTES.dishSplitPage){
       return(
         <View style={styles.container}>
-          {this.state.tabsArray.map((tabInfo) => {
+          {tabsArray.map((tabInfo) => {
             const activeClass = currentRoute === tabInfo.routeName ? { color: '#ffffff'} : {};
             return(
             <TouchableNativeFeedback key={tabInfo.routeName} onPress = {this.navigate.bind(this, tabInfo)}

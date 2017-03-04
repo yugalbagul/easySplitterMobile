@@ -5,7 +5,8 @@ export const ROUTES = {
   loginPage: 'LOGINPAGE',
   friendsPage: 'FRIENDSPAGE',
   notificationsPage: 'NOTIFICATIONSPAGE',
-  userProfilePage: 'USERPROFILEPAGE'
+  userProfilePage: 'USERPROFILEPAGE',
+  emailLoginPage: 'EMAILLOGINPAGE'
 }
 
 export const bottomNavTabs = [

@@ -39,11 +39,6 @@ export const styles = StyleSheet.create({
   },
 
   listContainer:{
-  },
-
-
-  saveButtonContainer:{
-    justifyContent: 'center',
   }
 })
 

@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, ScrollView, Image  } from 'react-native';
+import { View, Text, ScrollView, Image  } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { isEmpty } from 'lodash';
-import CheckBox from 'react-native-checkbox';
 import { Actions } from 'react-native-router-flux'
 import { MKTextField, MKCheckbox } from 'react-native-material-kit'
 import { ROUTES } from '../../constants';
@@ -22,16 +21,16 @@ export default class DishSplitScene extends React.Component {
 
   componentWillMount(){
     const { dishData, newItem }  = this.props
+    const baseNewState = {
+      currentBaseSplitAmount: 0,
+      currentTotalSplits: 0,
+      currentDishSplit: [],
+      currentDishTotalPrice: '',
+      currentDishCount: '',
+      currentDishName: '',
+    }
     if(newItem) {
-      this.setState({
-        currentBaseSplitAmount: 0,
-        currentTotalSplits: 0,
-        currentDishSplit: [],
-        currentDishTotalPrice: '',
-        currentDishCount: '',
-        currentDishName: '',
-        editName: true,
-      });
+      this.setState(baseNewState);
     } else if(dishData && !isEmpty(dishData.splitInfo)){
       const { splitInfo } = dishData;
       const {
@@ -54,14 +53,11 @@ export default class DishSplitScene extends React.Component {
       })
     }
     else if(dishData && isEmpty(dishData.splitInfo)){
-      this.setState({
-        currentBaseSplitAmount: 0,
-        currentTotalSplits: 0,
-        currentDishSplit: [],
+      this.setState(Object.assign({}, baseNewState,{
         currentDishTotalPrice: dishData.dishTotalPrice,
         currentDishCount: dishData.count,
         currentDishName: dishData.dishName,
-      })
+      }))
     }
   }
 
@@ -116,15 +112,15 @@ export default class DishSplitScene extends React.Component {
 
   onPersonSelectToggle(checked, id){
     const { people } = this.props;
-    const index = this.state.currentDishSplit.findIndex((item) => item.id == id);
+    
     if(checked){
       const newState = Object.assign({}, this.state,
-        dishSplitCalculator('USER_SELECTION_ADDED', index, people, this.state));
+        dishSplitCalculator('USER_SELECTION_ADDED', id, people, this.state));
       this.setState(newState);
     } else {
-      const newState = Object.assign({}, this.state,
-        dishSplitCalculator('USER_SELECTION_REMOVED', index, this.state));
-      this.setState(newState);
+    //  const newState = Object.assign({}, this.state,
+        //dishSplitCalculator('USER_SELECTION_REMOVED', id, this.state));
+      //this.setState(newState);
     }
 
   }
@@ -257,7 +253,6 @@ export default class DishSplitScene extends React.Component {
                 if(personSplitInfo && personSplitInfo.dishAmount){
                   amountTextColorStyle.color = '#276191'
                 }
-
                 return (
                 <View style={styles.dishSplitPersonContainer} key={personInfo.id}>
                   <View style={styles.nameCheckBxContainer}>
@@ -267,7 +262,7 @@ export default class DishSplitScene extends React.Component {
                       editable={!disableSplitSection}
                       onCheckedChange={(obj) => {
                         if(!disableSplitSection){
-                          this.onPersonSelectToggle(obj.checked, personSplitInfo.id)
+                          this.onPersonSelectToggle(obj.checked, personInfo.id)
                         }
                       }}
                       fillColor={'#008C7D'}
@@ -284,7 +279,7 @@ export default class DishSplitScene extends React.Component {
                   <View style={styles.personShareContainer}>
                     <MKTextField
                        keyboardType={'numeric'}
-                       value={personSplitInfo.splitPortion.toString()}
+                       value={personSplitInfo ? personSplitInfo.splitPortion.toString() : ''}
                        onChange={(event) => {this.onUserPortionChange(event, personSplitInfo.id )}}
                        style={{width:40}}
                        editable={!disableSplitSection && personSplitInfo && personSplitInfo.selected}
@@ -294,7 +289,7 @@ export default class DishSplitScene extends React.Component {
                   </View>
 
                   <View style={styles.personDishAmountContainer}>
-                    <AmountWithSymbol amount={personSplitInfo.dishAmount}
+                    <AmountWithSymbol amount={personSplitInfo ? personSplitInfo.dishAmount : 0}
                       currencyContainerStyle={{paddingRight: 4}}
                       amountTextStyle ={[styles.personDishAmountText, amountTextColorStyle]}
                       currencySymbolStyle = {[styles.personDishAmountText , amountTextColorStyle]}

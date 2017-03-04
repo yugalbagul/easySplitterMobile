@@ -1,6 +1,5 @@
 import React from 'react';
 import { Modal, ListView, View, Text, ScrollView, TouchableNativeFeedback, InteractionManager } from 'react-native';
-import CheckBox from 'react-native-checkbox';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';

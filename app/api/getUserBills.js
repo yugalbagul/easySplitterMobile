@@ -33,14 +33,13 @@ const getUserBills = (userId) =>
               reject(err)
             })
           })
-
           billsRecordsPromises.push(billFetchPromise);
         })
 
         return Promise.all(billsRecordsPromises)
       } else {
         // no bills found
-        resolve(resolveObject);
+        resolve([]);
       }
     }).catch(err => reject(err)) // reject for userBills Record fetch
     .then((result) => {

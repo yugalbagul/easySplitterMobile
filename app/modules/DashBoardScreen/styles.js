@@ -16,6 +16,17 @@ export const styles  = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between'
   },
+  pendingAmountContainer:{
+    alignItems:'flex-end',
+  },
+  pendingAmountUpperText:{
+    color: '#FFF',
+    fontSize: 12
+  },
+  pendingAmount:{
+    color: '#FFE700',
+    fontSize: 24,
+  },
   userThumbnailContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -26,6 +37,11 @@ export const styles  = StyleSheet.create({
     height: 55,
     borderRadius: 30,
     borderWidth: 1
+  },
+  defaultUserThumbnail : {
+    backgroundColor: '#E0E0E0',
+    alignItems:'center',
+    justifyContent:'center'
   },
   currentUserPendingBar: {
     flexDirection: 'row',
@@ -48,10 +64,12 @@ export const styles  = StyleSheet.create({
   //  List view style
   list : {
     flex: 1,
-    marginTop: 30,
     paddingHorizontal: 8,
   },
-
+  sectionHeader:{
+    paddingVertical: 8,
+    color: '#9E9E9E'
+  },
 
   // loading indicator
   loadingIndicator: {
@@ -59,6 +77,21 @@ export const styles  = StyleSheet.create({
     justifyContent: 'center',
     padding: 8,
   },
+})
+
+export const hztlGraphStyle = StyleSheet.create({
+  hztlContainer:{
+    paddingVertical: 5,
+    alignItems:'flex-end',
+    paddingRight: 8
+  },
+  upperText:{
+    fontSize: 12,
+    color:'white'
+  },
+  amount:{
+    color:'white'
+  }
 })
 
 export const billCardStyle = StyleSheet.create({

@@ -52,49 +52,57 @@ const userSelectionRemoved = ([ index, state ]) => {
   }
 }
 
-const userSelectionAdded = ([ index, people, state ]) => {
+const userSelectionAdded = ([ id, people, state ]) => {
   const tempCurrentDishSplit = state.currentDishSplit;
-  const personInfo = people[index];
-  const userSplitPresent = tempCurrentDishSplit.findIndex((record) => record.id === personInfo.id);
-  if(userSplitPresent !== -1){
-    const { currentDishTotalPrice } = state;
-
-    tempCurrentDishSplit[index].selected = true;
-    tempCurrentDishSplit[index].splitPortion = '1';
-    // calculate new splits after removing this person
-    let newTotalSplits = 0;
-    tempCurrentDishSplit.map((userSplitInfo) => {
-      if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
-        newTotalSplits = newTotalSplits + parseFloat(userSplitInfo.splitPortion);
-      }
-    });
-    const newBaseSplitAmount = (parseFloat(currentDishTotalPrice)) / newTotalSplits;
-
-    tempCurrentDishSplit.map((userSplitInfo) => {
-      if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
-        userSplitInfo.dishAmount = userSplitInfo.splitPortion * newBaseSplitAmount;
-      } else {
-        userSplitInfo.dishAmount = 0
-      }
-    })
-    return {
-      currentDishSplit: tempCurrentDishSplit,
-      currentTotalSplits: newTotalSplits,
-      currentBaseSplitAmount: newBaseSplitAmount,
-    }
-  }
-  else {
+  const personInfo = people.find((item) => item.id == id);
+  let userSplitIndex = tempCurrentDishSplit.findIndex((record) => record.id === id);
+  if(userSplitIndex === -1){
     const tempDishSplitRecord = {
       id: personInfo.id,
       splitPortion: '',
       dishAmount: 0,
       selected: true
     }
-    tempCurrentDishSplit.push(tempDishSplitRecord);
-    return {
-      currentDishSplit: tempCurrentDishSplit,
-    }
+    userSplitIndex = (tempCurrentDishSplit.push(tempDishSplitRecord) - 1);
+
   }
+  const { currentDishTotalPrice } = state;
+
+  tempCurrentDishSplit[userSplitIndex].selected = true;
+  tempCurrentDishSplit[userSplitIndex].splitPortion = '1';
+  // calculate new splits after removing this person
+  let newTotalSplits = 0;
+  tempCurrentDishSplit.map((userSplitInfo) => {
+    if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
+      newTotalSplits = newTotalSplits + parseFloat(userSplitInfo.splitPortion);
+    }
+  });
+  const newBaseSplitAmount = (parseFloat(currentDishTotalPrice)) / newTotalSplits;
+
+  tempCurrentDishSplit.map((userSplitInfo) => {
+    if(userSplitInfo.selected && userSplitInfo.splitPortion && userSplitInfo.splitPortion !== '0'){
+      userSplitInfo.dishAmount = userSplitInfo.splitPortion * newBaseSplitAmount;
+    } else {
+      userSplitInfo.dishAmount = 0
+    }
+  })
+  return {
+    currentDishSplit: tempCurrentDishSplit,
+    currentTotalSplits: newTotalSplits,
+    currentBaseSplitAmount: newBaseSplitAmount,
+  }
+  // else {
+  //   const tempDishSplitRecord = {
+  //     id: personInfo.id,
+  //     splitPortion: '',
+  //     dishAmount: 0,
+  //     selected: true
+  //   }
+  //   tempCurrentDishSplit.push(tempDishSplitRecord);
+  //   return {
+  //     currentDishSplit: tempCurrentDishSplit,
+  //   }
+  // }
 
 }
 
