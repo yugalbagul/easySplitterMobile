@@ -2,13 +2,23 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators} from 'redux';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { LoginButton, AccessToken } from 'react-native-fbsdk';
+// import { LoginButton, AccessToken } from 'react-native-fbsdk';
 import { Actions } from 'react-native-router-flux';
 import { ROUTES } from '../../constants';
 import { LoginProviders } from '../../constants';
-import { firebaseAuth, fbProvider } from '../../../config/firebase/firebaseConfig';
+// import { firebaseAuth, fbProvider } from '../../../config/firebase/firebaseConfig';
 import { scoialLoginStyle as styles, loginContainerStyles } from './styles';
 import { processLoginAction } from '../../actions/loginActions';
+
+// <View style={styles.fbButtonContainer}>
+//   <LoginButton
+//     readPermissions={['email','public_profile','user_friends']}
+//     onLoginFinished={this.loginWithFacebook}
+//     onLogoutFinished={() => alert('logout.')}
+//     loginBehaviorAndroid={'native_with_fallback'}
+//     style={styles.fbButtonStyle}
+//   />
+// </View>
 
 class LoginScene extends React.Component {
   constructor(){
@@ -24,17 +34,17 @@ class LoginScene extends React.Component {
     } else if (result.isCancelled) {
 
     } else {
-      AccessToken.getCurrentAccessToken().then(
-        (data) => {
-          const credential = fbProvider.credential(data.accessToken);
-          return firebaseAuth.signInWithCredential(credential);
-        }
-      ).then((userdata) => {
-        processLoginAction({ userData: userdata, provider: LoginProviders.facebook, navigator: this.props.navigator })
-      })
-      .catch(err => {
-        processLoginAction({ error: err, provider: LoginProviders.firebase, navigator: this.props.navigator })
-      })
+      // AccessToken.getCurrentAccessToken().then(
+      //   (data) => {
+      //     const credential = fbProvider.credential(data.accessToken);
+      //     return firebaseAuth.signInWithCredential(credential);
+      //   }
+      // ).then((userdata) => {
+      //   processLoginAction({ userData: userdata, provider: LoginProviders.facebook, navigator: this.props.navigator })
+      // })
+      // .catch(err => {
+      //   processLoginAction({ error: err, provider: LoginProviders.firebase, navigator: this.props.navigator })
+      // })
     }
   }
 
@@ -72,15 +82,7 @@ class LoginScene extends React.Component {
           </View>
 
         </View>
-        <View style={styles.fbButtonContainer}>
-          <LoginButton
-            readPermissions={['email','public_profile','user_friends']}
-            onLoginFinished={this.loginWithFacebook}
-            onLogoutFinished={() => alert('logout.')}
-            loginBehaviorAndroid={'native_with_fallback'}
-            style={styles.fbButtonStyle}
-          />
-        </View>
+
         <TouchableOpacity onPress={this.goToLogin.bind(this, 'signup')}>
         <Text style={styles.registerText}>
           New User ? Register Now

@@ -12,7 +12,6 @@
     "lodash": "^4.17.2",
     "react": "15.4.1",
     "react-native": "0.38.0",
-    "react-native-fbsdk": "^0.4.0",
     "react-native-linear-gradient": "^2.0.0",
     "react-native-material-kit": "0.4.0",
     "react-native-router-flux": "^3.37.0",
